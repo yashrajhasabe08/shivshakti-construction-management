@@ -1,0 +1,183 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String
+  role          String   // ADMIN, PARTNER, CLIENT, WORKER
+  partnerId     String?
+  clientId      String?
+  location      String?
+  title         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  partner       Partner? @relation(fields: [partnerId], references: [id])
+  client        Client?  @relation(fields: [clientId], references: [id])
+}
+
+model Partner {
+  id              String   @id @default(cuid())
+  name            String
+  location        String
+  role            String
+  mobile          String
+  capitalInvested BigInt
+  createdAt       DateTime @default(now())
+  
+  users           User[]
+  projects        Project[]
+  expenses        Expense[]
+}
+
+model Project {
+  id                String   @id @default(cuid())
+  name              String
+  district          String?
+  division          String?
+  location          String
+  partnerId         String
+  partnerName       String
+  clientName        String
+  budget            BigInt
+  actualCost        BigInt
+  startDate         DateTime?
+  targetEndDate     DateTime?
+  status            String   // In Progress, Completed, On Hold
+  completionPercent Int
+  
+  partner           Partner  @relation(fields: [partnerId], references: [id])
+  expenses          Expense[]
+  purchaseOrders    PurchaseOrder[]
+  labourWages       LabourWage[]
+}
+
+model Expense {
+  id              String   @id @default(cuid())
+  projectId       String
+  projectName     String
+  date            DateTime?
+  category        String   // Site Petty Cash, Municipal Fees, Diesel, etc.
+  expenseTitle    String
+  amount          BigInt
+  paidBy          String
+  receiptNo       String?
+  partnerId       String?
+  createdAt       DateTime @default(now())
+  
+  project         Project  @relation(fields: [projectId], references: [id])
+  partner         Partner? @relation(fields: [partnerId], references: [id])
+}
+
+model PurchaseOrder {
+  id              String   @id @default(cuid())
+  poNumber        String   @unique
+  supplierName    String
+  projectId       String
+  projectName     String
+  partnerId       String?
+  orderDate       DateTime?
+  totalAmount     BigInt
+  driverName      String?
+  driverMobile    String?
+  vehicleNumber   String?
+  deliveryStatus  String
+  dispatchNotes   String?
+  createdAt       DateTime @default(now())
+  
+  project         Project  @relation(fields: [projectId], references: [id])
+}
+
+model LabourWage {
+  id              String   @id @default(cuid())
+  projectId       String
+  projectName     String
+  partnerId       String?
+  weekEndingDate  DateTime?
+  masonCount      Int
+  helperCount     Int
+  supervisorCount Int?
+  masonRate       BigInt?
+  helperRate      BigInt?
+  totalDailyWage  BigInt?
+  daysWorked      Int?
+  totalWeeklyWage BigInt
+  status          String   // Approved, Paid
+  paidDate        DateTime?
+  
+  project         Project  @relation(fields: [projectId], references: [id])
+}
+
+model Client {
+  id                  String   @id @default(cuid())
+  name                String
+  contactPerson       String
+  mobile              String
+  email               String
+  projectAssigned     String?
+  totalContractValue  BigInt
+  totalReceived       BigInt
+  pendingBalance      BigInt
+  
+  users               User[]
+}
+
+model Supplier {
+  id                 String   @id @default(cuid())
+  name               String
+  materialCategory   String?
+  contactPerson      String?
+  mobile             String?
+  email              String?
+  city               String?
+  outstandingBalance BigInt?
+}
+
+model PurchaseBill {
+  id              String   @id @default(cuid())
+  billNumber      String   @unique
+  supplierName    String
+  poRef           String?
+  projectId       String?
+  projectName     String?
+  partnerId       String?
+  baseAmount      BigInt
+  gstAmount       BigInt
+  totalBillAmount BigInt
+  approvalStatus  String
+  paymentStatus   String
+  createdAt       DateTime @default(now())
+}
+
+model Subcontractor {
+  id            String   @id @default(cuid())
+  firmName      String
+  tradeScope    String
+  projectId     String?
+  projectName   String?
+  partnerId     String?
+  contractValue BigInt
+  paidAmount    BigInt
+  pendingAmount BigInt
+  progress      Int
+}
+
+model Asset {
+  id               String   @id @default(cuid())
+  assetName        String
+  category         String
+  siteAssigned     String?
+  partnerId        String?
+  purchaseValue    BigInt
+  valuationCurrent BigInt
+  condition        String
+  status           String
+}
