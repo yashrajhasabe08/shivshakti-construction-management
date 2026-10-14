@@ -13,7 +13,8 @@ import {
   Building, 
   Users, 
   FileText,
-  ChevronRight
+  ChevronRight,
+  Bell
 } from 'lucide-react';
 import { exportMasterWorkbook } from '../utils/excelExport';
 
@@ -29,17 +30,25 @@ export default function Header({
   onNavigateTo
 }) {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const searchContainerRef = useRef(null);
+  const notifContainerRef = useRef(null);
 
   const pendingDeliveriesCount = data?.purchaseOrders?.filter(
     po => po.deliveryStatus === 'In-Transit' || po.deliveryStatus === 'Dispatched'
   ).length || 0;
 
-  // Close search dropdown on outside click
+  const notifications = data?.notifications || [];
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  // Close dropdowns on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
         setShowSearchDropdown(false);
+      }
+      if (notifContainerRef.current && !notifContainerRef.current.contains(event.target)) {
+        setShowNotifications(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -288,6 +297,45 @@ export default function Header({
             </button>
           </>
         )}
+
+        {/* Phase 12: Role-Relevant Notifications Bell */}
+        <div className="relative" ref={notifContainerRef}>
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="p-2 rounded-xl text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition-colors relative"
+            title="System Notifications"
+          >
+            <Bell className="w-4 h-4" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+            )}
+          </button>
+
+          {showNotifications && (
+            <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 p-4 space-y-3 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-xs font-bold text-slate-900">Notifications ({notifications.length})</span>
+                <span className="text-[10px] text-slate-400">Role: {user?.role}</span>
+              </div>
+
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <p className="text-xs text-slate-400 text-center py-4">No new notifications</p>
+                ) : (
+                  notifications.map((n) => (
+                    <div key={n.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-800">{n.title}</span>
+                        <span className="text-[9px] text-slate-400">{n.createdAt ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now'}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-600">{n.message}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Authenticated User Profile Pill & Logout Button */}
         <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200/80 rounded-xl pl-2.5 pr-1.5 py-1">

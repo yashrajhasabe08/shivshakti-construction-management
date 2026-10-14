@@ -6,10 +6,7 @@ import {
   Eye, 
   EyeOff, 
   ArrowRight, 
-  ShieldCheck, 
   AlertCircle,
-  KeyRound,
-  CheckCircle2,
   Loader2
 } from 'lucide-react';
 import { api } from '../services/api';
@@ -21,21 +18,13 @@ export default function LoginView({ onLoginSuccess }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const registeredAccounts = [
-    { role: 'Managing Partner (P1)', email: 'rajesh@shivshakti.com', pass: 'rajesh123', scope: 'Pune & Kolhapur' },
-    { role: 'Partner (P2)', email: 'suresh@shivshakti.com', pass: 'suresh123', scope: 'Mumbai High-Rise' },
-    { role: 'Partner (P3)', email: 'vikram@shivshakti.com', pass: 'vikram123', scope: 'Nagpur Earthwork' },
-    { role: 'Corporate Client', email: 'client@apexinfa.com', pass: 'client123', scope: 'Apex Infrastructures' },
-    { role: 'Worker / Driver', email: 'driver@shivshakti.com', pass: 'driver123', scope: 'Vehicle MH 12 QG 4821' }
-  ];
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
 
     try {
-      // Real backend authentication with bcrypt verification & JWT issuance
+      // Secure backend authentication with bcrypt verification & JWT issuance
       const result = await api.login(email.trim(), password);
       setIsLoading(false);
       if (onLoginSuccess) {
@@ -43,14 +32,8 @@ export default function LoginView({ onLoginSuccess }) {
       }
     } catch (err) {
       setIsLoading(false);
-      setErrorMessage(err.message || 'Authentication failed. Please verify your email and password.');
+      setErrorMessage(err.message || 'Authentication failed. Please check your credentials.');
     }
-  };
-
-  const handleFillCredentials = (acc) => {
-    setEmail(acc.email);
-    setPassword(acc.pass);
-    setErrorMessage('');
   };
 
   return (
@@ -69,7 +52,7 @@ export default function LoginView({ onLoginSuccess }) {
           </p>
         </div>
 
-        {/* Real Login Form Card */}
+        {/* Secure Login Form Card */}
         <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-5">
           <div>
             <div className="flex items-center justify-between">
@@ -79,7 +62,7 @@ export default function LoginView({ onLoginSuccess }) {
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Enter your registered corporate credentials to access your allocated sites.
+              Enter your corporate credentials to access your allocated sites.
             </p>
           </div>
 
@@ -118,9 +101,10 @@ export default function LoginView({ onLoginSuccess }) {
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
+                  id="login-password-input"
                   type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder="Enter password"
+                  placeholder="Enter your secure password"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
@@ -132,6 +116,7 @@ export default function LoginView({ onLoginSuccess }) {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  title={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -150,48 +135,17 @@ export default function LoginView({ onLoginSuccess }) {
                 </>
               ) : (
                 <>
-                  <span>Sign In with Password</span>
+                  <span>Sign In to ERP Portal</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
-
-          {/* Authorized Accounts Directory (for testing) */}
-          <div className="pt-4 border-t border-slate-100 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center space-x-1">
-                <KeyRound className="w-3 h-3 text-slate-400" />
-                <span>Authorized Directory</span>
-              </span>
-              <span className="text-[10px] text-slate-400">Click to fill form</span>
-            </div>
-
-            <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/70 overflow-hidden bg-slate-50/50">
-              {registeredAccounts.map((acc) => (
-                <div
-                  key={acc.email}
-                  onClick={() => handleFillCredentials(acc)}
-                  className="p-2.5 flex items-center justify-between hover:bg-blue-50/60 cursor-pointer transition-colors"
-                >
-                  <div>
-                    <span className="text-xs font-bold text-slate-800 block leading-tight">
-                      {acc.role}
-                    </span>
-                    <span className="text-[11px] text-slate-500 font-mono">
-                      {acc.email} &bull; <strong className="text-slate-700">{acc.pass}</strong>
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-[#2563EB] font-semibold">Select</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Security Notice */}
         <p className="text-center text-[11px] text-slate-400">
-          Shivshakti Construction Management System &bull; 256-bit Encrypted JWT Session
+          Shivshakti Construction Management System &bull; 256-bit Encrypted JWT Session &bull; Strictly Zero Plaintext Passwords
         </p>
       </div>
     </div>

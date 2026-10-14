@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "node server/index.js",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "db:push": "prisma db push",
+    "db:migrate": "node scripts/migrate_to_postgres.cjs"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",

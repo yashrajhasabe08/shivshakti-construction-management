@@ -1,141 +1,168 @@
-import React from 'react';
-import { HardHat, Plus, Download, Users, CheckCircle2, Calendar } from 'lucide-react';
-import { exportToExcel } from '../utils/excelExport';
+import React, { useState } from 'react';
+import { HardHat, Plus, Download, Users, CheckCircle2, Calendar, Building } from 'lucide-react';
+import ModuleHeader from './ModuleHeader';
+import DataTable from './DataTable';
+import ConfirmModal from './ConfirmModal';
+import { MODULE_DESCRIPTIONS } from '../data/moduleDescriptions';
 
-export default function LabourWagesView({ data, selectedPartner, onAddNew, onDelete }) {
+export default function LabourWagesView({ data, selectedPartner, onAddNew, onEdit, onDelete }) {
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const moduleInfo = MODULE_DESCRIPTIONS.labourWages;
+
   const wages = (data.labourWages || []).filter(lw => {
     if (selectedPartner === 'ALL') return true;
     const proj = (data.projects || []).find(p => p.id === lw.projectId);
     return proj && proj.partnerId === selectedPartner;
   });
 
-  const handleExport = () => {
-    const exportData = wages.map(lw => ({
-      'Wages ID': lw.id,
-      'Project Site': lw.projectName,
-      'Week Ending Date': lw.weekEndingDate,
-      'Mason Count': lw.masonCount,
-      'Helper Count': lw.helperCount,
-      'Supervisor Count': lw.supervisorCount,
-      'Mason Daily Rate (INR)': lw.masonRate,
-      'Helper Daily Rate (INR)': lw.helperRate,
-      'Total Daily Wage (INR)': lw.totalDailyWage,
-      'Days Worked': lw.daysWorked,
-      'Total Weekly Payout (INR)': lw.totalWeeklyWage,
-      'Status': lw.status
-    }));
-    exportToExcel(exportData, 'Shivshakti_Labour_Wages_Muster.xlsx', 'Labour Wages');
-  };
-
   const formatCurrency = (val) => {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val || 0);
   };
 
   const totalWeeklyWageSum = wages.reduce((sum, lw) => sum + (lw.totalWeeklyWage || 0), 0);
 
+  const columns = [
+    {
+      key: 'id',
+      header: 'Muster ID & Date',
+      render: (val, row) => (
+        <div>
+          <span className="font-bold text-slate-900 font-mono text-xs block">{val}</span>
+          <span className="text-[11px] text-slate-400">Week Ending: {row.weekEndingDate || '—'}</span>
+        </div>
+      )
+    },
+    {
+      key: 'projectName',
+      header: 'Project Site',
+      render: (val) => (
+        <span className="text-slate-800 font-medium text-xs inline-flex items-center space-x-1">
+          <Building className="w-3 h-3 text-slate-400 shrink-0" />
+          <span>{val || 'General Site'}</span>
+        </span>
+      )
+    },
+    {
+      key: 'headMason',
+      header: 'Muster Gang / Head',
+      render: (val, row) => (
+        <div>
+          <span className="font-semibold text-slate-900 text-xs block">{val || 'Site Labor Gang'}</span>
+          <span className="text-[10px] text-slate-400">{row.tradeType || 'Masonry & Helpers'}</span>
+        </div>
+      )
+    },
+    {
+      key: 'workerCount',
+      header: 'Workers',
+      align: 'center',
+      render: (val, row) => {
+        const count = val || (Number(row.masonCount || 0) + Number(row.helperCount || 0)) || '—';
+        return (
+          <span className="px-2 py-0.5 rounded-full font-semibold text-xs bg-slate-100 text-slate-700">
+            {count} Workers
+          </span>
+        );
+      }
+    },
+    {
+      key: 'totalWeeklyWage',
+      header: 'Weekly Payout (₹)',
+      align: 'right',
+      render: (val) => (
+        <span className="font-bold text-slate-900 font-mono text-xs">
+          {formatCurrency(val)}
+        </span>
+      )
+    },
+    {
+      key: 'status',
+      header: 'Disbursement',
+      align: 'center',
+      render: (val) => {
+        const isPaid = val === 'Paid';
+        return (
+          <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wider ${
+            isPaid ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'
+          }`}>
+            {val || 'Processing'}
+          </span>
+        );
+      }
+    }
+  ];
+
+  const filterOptions = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'ALL', label: 'All Statuses' },
+        { value: 'Paid', label: 'Paid' },
+        { value: 'Pending', label: 'Pending' }
+      ]
+    },
+    {
+      key: 'projectName',
+      label: 'Site',
+      options: [
+        { value: 'ALL', label: 'All Project Sites' },
+        ...Array.from(new Set(wages.map(w => w.projectName).filter(Boolean))).map(s => ({
+          value: s,
+          label: s
+        }))
+      ]
+    }
+  ];
+
+  const handleDeleteConfirm = () => {
+    if (deleteTarget) {
+      onDelete('labourWages', deleteTarget.id);
+      setDeleteTarget(null);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white border border-slate-200/80 p-6 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-        <div className="flex items-center space-x-3.5">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#2563EB] shrink-0">
-            <HardHat className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h2 className="text-base font-semibold text-slate-900">Labour Wages & Muster Roll</h2>
-              <span className="badge badge-info">
-                Total Payout: {formatCurrency(totalWeeklyWageSum)}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Daily site worker count, daily rates, and weekly payout ledger for Masons & Helpers.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2.5">
-          <button
-            onClick={handleExport}
-            className="btn-secondary flex items-center space-x-2 text-xs font-medium"
-          >
-            <Download className="w-4 h-4 text-slate-500" />
-            <span>Export Wage Muster Excel</span>
-          </button>
+      <ModuleHeader
+        icon={HardHat}
+        title={moduleInfo.title}
+        subtitle={moduleInfo.shortDescription}
+        fullDescription={moduleInfo.fullDescription}
+        badge={`Total Payout: ${formatCurrency(totalWeeklyWageSum)}`}
+        actions={
           <button
             onClick={() => onAddNew('labourWages')}
-            className="btn-primary flex items-center space-x-2 text-xs font-medium"
+            className="btn-primary flex items-center space-x-2 text-xs font-semibold"
           >
             <Plus className="w-4 h-4" />
-            <span>Record Weekly Muster</span>
+            <span>Record Wage Muster</span>
           </button>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-        <div className="overflow-x-auto">
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Wages ID & Site</th>
-                <th>Week Ending Date</th>
-                <th>Worker Attendance</th>
-                <th>Daily Rates</th>
-                <th>Daily Total</th>
-                <th>Weekly Payout</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wages.map((lw) => (
-                <tr key={lw.id}>
-                  <td>
-                    <div>
-                      <span className="font-medium text-slate-900">{lw.projectName}</span>
-                      <span className="block text-[10px] text-slate-400 font-mono">{lw.id}</span>
-                    </div>
-                  </td>
-                  <td className="text-xs text-slate-600 font-medium">{lw.weekEndingDate}</td>
-                  <td>
-                    <div className="text-xs space-y-0.5">
-                      <span className="text-slate-900 font-medium">{lw.masonCount} Masons</span> +{' '}
-                      <span className="text-slate-600">{lw.helperCount} Helpers</span>
-                      <span className="block text-[10px] text-slate-400">({lw.supervisorCount} Supervisor)</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="text-[11px] text-slate-500">
-                      Mason: <span className="text-slate-800 font-medium">₹{lw.masonRate}</span>/day
-                      <span className="block">Helper: <span className="text-slate-800 font-medium">₹{lw.helperRate}</span>/day</span>
-                    </div>
-                  </td>
-                  <td className="font-medium text-slate-700">{formatCurrency(lw.totalDailyWage)}</td>
-                  <td>
-                    <div className="text-xs">
-                      <span className="font-semibold text-slate-900 text-sm">{formatCurrency(lw.totalWeeklyWage)}</span>
-                      <span className="block text-[10px] text-slate-400">For {lw.daysWorked} days</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`badge ${lw.status === 'Paid' ? 'badge-success' : 'badge-warning'}`}>
-                      {lw.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      onClick={() => onDelete(lw.id)}
-                      className="px-2 py-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg text-xs font-medium transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        data={wages}
+        columns={columns}
+        searchKeys={['projectName', 'id', 'headMason', 'tradeType', 'status']}
+        searchPlaceholder="Search wage muster by site, gang head, ID, status..."
+        filters={filterOptions}
+        onAddNew={() => onAddNew('labourWages')}
+        addNewLabel="Record Wage Muster"
+        onEdit={(row) => onEdit('labourWages', row)}
+        onDelete={(row) => setDeleteTarget(row)}
+        exportFilename="Shivshakti_Labour_Wages.xlsx"
+        exportSheetName="LabourWages"
+      />
+
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        title="Delete Labour Wage Record"
+        message={`Are you sure you want to permanently delete wage muster record ${deleteTarget?.id} for ${deleteTarget?.projectName}? This will permanently remove the record from PostgreSQL.`}
+        confirmLabel="Confirm Delete Muster"
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

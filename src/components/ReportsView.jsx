@@ -11,12 +11,40 @@ import {
   HardHat, 
   Wrench, 
   DollarSign, 
-  Users 
+  Users,
+  PieChart
 } from 'lucide-react';
-import { exportMasterWorkbook, exportPartnerWorkbook, exportToExcel } from '../utils/excelExport';
+import { 
+  exportMasterWorkbook, 
+  exportPartnerWorkbook, 
+  exportToExcel, 
+  exportPartnerExpenseBreakdownReport,
+  exportPurchaseOrdersWithMaterials 
+} from '../utils/excelExport';
+import ModuleHeader from './ModuleHeader';
+import { MODULE_DESCRIPTIONS } from '../data/moduleDescriptions';
 
 export default function ReportsView({ data }) {
+  const moduleInfo = MODULE_DESCRIPTIONS.reports;
+
   const reportCards = [
+    {
+      id: 'partnerBreakdown',
+      title: 'Partner Expense Breakdown Report (₹1.25 Crore Split)',
+      desc: 'Complete dossier showing P1 (Rajesh), P2 (Suresh), P3 (Vikram) ₹1.25 Cr expenditure across 7 material categories (Cement, Steel, Sand, Concrete, Labour, Subcontractors, Utilities).',
+      icon: PieChart,
+      badge: 'Mentor Requirement',
+      color: 'from-blue-600 to-indigo-500',
+      action: () => exportPartnerExpenseBreakdownReport()
+    },
+    {
+      id: 'poMaterials',
+      title: 'PO Materials & Linked Bills Master Ledger',
+      desc: 'Itemized material descriptions, quantities, units, rates, delivery percentages, and matched supplier bill references.',
+      icon: Truck,
+      badge: 'Feature 1 & 4',
+      action: () => exportPurchaseOrdersWithMaterials(data.purchaseOrders || [], data.purchaseBills || [])
+    },
     {
       id: 'master',
       title: 'Master ERP Executive Excel Workbook',
@@ -169,28 +197,23 @@ export default function ReportsView({ data }) {
 
   return (
     <div className="space-y-6 pb-8">
-      {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white border border-slate-200/80 p-6 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-        <div className="flex items-center space-x-3.5">
-          <div className="w-11 h-11 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-center text-[#2563EB]">
-            <BarChart3 className="w-5 h-5 text-[#2563EB]" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">Reports & Excel Generation Suite</h2>
-            <p className="text-xs text-slate-500 mt-1">
-              One-click Excel sheet generator for all 12 operational modules & master executive workbook.
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => exportMasterWorkbook(data)}
-          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-xs transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          <span>Download Master Excel Workbook</span>
-        </button>
-      </div>
+      {/* Header Bar with Feature 3 Subtitle & Tooltip */}
+      <ModuleHeader
+        icon={BarChart3}
+        title={moduleInfo.title}
+        subtitle={moduleInfo.shortDescription}
+        fullDescription={moduleInfo.fullDescription}
+        badge="Excel Generation Suite"
+        actions={
+          <button
+            onClick={() => exportMasterWorkbook(data)}
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-xs transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download Master Excel Workbook</span>
+          </button>
+        }
+      />
 
       {/* Dedicated Partner-wise Statement Downloads (Requirement 3) */}
       <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
@@ -224,7 +247,7 @@ export default function ReportsView({ data }) {
                   <h4 className="text-sm font-bold text-slate-900 mt-2">{partner.name}</h4>
                   <p className="text-xs text-slate-500">{partner.role} &bull; {partner.location}</p>
                   <p className="text-xs font-semibold text-slate-800 mt-2">
-                    Capital: ₹{(partner.capitalInvested / 10000000).toFixed(2)} Cr
+                    Capital: ₹{Number(partner.capitalInvested || 0).toLocaleString('en-IN')}
                   </p>
                 </div>
                 <button

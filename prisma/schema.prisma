@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -8,30 +9,40 @@ generator client {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  passwordHash  String
-  name          String
-  role          String   // ADMIN, PARTNER, CLIENT, WORKER
-  partnerId     String?
-  clientId      String?
-  location      String?
-  title         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  name            String
+  role            String    // ADMIN, PARTNER, CLIENT, WORKER
+  phone           String?
+  partnerId       String?
+  clientId        String?
+  assignedProject String?
+  location        String?
+  title           String?
+  status          String    @default("ACTIVE") // ACTIVE, INACTIVE
+  driverVehicleNo String?
+  lastLogin       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   
-  partner       Partner? @relation(fields: [partnerId], references: [id])
-  client        Client?  @relation(fields: [clientId], references: [id])
+  partner         Partner?  @relation(fields: [partnerId], references: [id])
+  client          Client?   @relation(fields: [clientId], references: [id])
+
+  @@index([role])
+  @@index([partnerId])
+  @@index([clientId])
+  @@index([status])
 }
 
 model Partner {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   name            String
   location        String
   role            String
   mobile          String
   capitalInvested BigInt
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
   
   users           User[]
   projects        Project[]
@@ -39,7 +50,7 @@ model Partner {
 }
 
 model Project {
-  id                String   @id @default(cuid())
+  id                String          @id @default(cuid())
   name              String
   district          String?
   division          String?
@@ -51,53 +62,130 @@ model Project {
   actualCost        BigInt
   startDate         DateTime?
   targetEndDate     DateTime?
-  status            String   // In Progress, Completed, On Hold
+  status            String          // In Progress, Completed, On Hold
   completionPercent Int
+  description       String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now()) @updatedAt
   
-  partner           Partner  @relation(fields: [partnerId], references: [id])
+  partner           Partner         @relation(fields: [partnerId], references: [id])
   expenses          Expense[]
   purchaseOrders    PurchaseOrder[]
   labourWages       LabourWage[]
+
+  @@index([partnerId])
+  @@index([status])
 }
 
 model Expense {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   projectId       String
   projectName     String
   date            DateTime?
-  category        String   // Site Petty Cash, Municipal Fees, Diesel, etc.
+  category        String    // Site Petty Cash, Municipal Fees, Diesel, etc.
   expenseTitle    String
   amount          BigInt
   paidBy          String
   receiptNo       String?
   partnerId       String?
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
   
-  project         Project  @relation(fields: [projectId], references: [id])
-  partner         Partner? @relation(fields: [partnerId], references: [id])
+  project         Project   @relation(fields: [projectId], references: [id])
+  partner         Partner?  @relation(fields: [partnerId], references: [id])
+
+  @@index([projectId])
+  @@index([partnerId])
+  @@index([date])
 }
 
 model PurchaseOrder {
-  id              String   @id @default(cuid())
-  poNumber        String   @unique
-  supplierName    String
-  projectId       String
-  projectName     String
-  partnerId       String?
-  orderDate       DateTime?
-  totalAmount     BigInt
-  driverName      String?
-  driverMobile    String?
-  vehicleNumber   String?
-  deliveryStatus  String
-  dispatchNotes   String?
-  createdAt       DateTime @default(now())
+  id               String              @id @default(cuid())
+  poNumber         String              @unique
+  supplierId       String?
+  supplierName     String
+  projectId        String
+  projectName      String
+  partnerId        String?
+  orderDate        DateTime?
+  expectedDelivery DateTime?
+  totalAmount      BigInt
+  driverName       String?
+  driverMobile     String?
+  vehicleNumber    String?
+  deliveryStatus   String              // Ordered, Dispatched, In-Transit, Delivered, Verified
+  dispatchNotes    String?
+  linkedBills      String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @default(now()) @updatedAt
   
-  project         Project  @relation(fields: [projectId], references: [id])
+  project          Project             @relation(fields: [projectId], references: [id])
+  items            PurchaseOrderItem[]
+
+  @@index([projectId])
+  @@index([partnerId])
+  @@index([deliveryStatus])
+}
+
+model PurchaseOrderItem {
+  id             String         @id @default(cuid())
+  poId           String
+  materialName   String
+  description    String?
+  quantity       Int
+  unit           String
+  ratePerUnit    BigInt
+  totalAmount    BigInt
+  deliveryStatus String?
+  createdAt      DateTime       @default(now())
+  
+  purchaseOrder  PurchaseOrder  @relation(fields: [poId], references: [id])
+
+  @@index([poId])
+}
+
+model PurchaseBill {
+  id              String    @id @default(cuid())
+  billNumber      String    @unique
+  supplierId      String?
+  supplierName    String
+  poRef           String?
+  projectId       String?
+  projectName     String?
+  partnerId       String?
+  billDate        String?
+  billDescription String?
+  baseAmount      BigInt
+  gstAmount       BigInt
+  totalBillAmount BigInt
+  approvalStatus  String    // Verified, Pending, Rejected
+  paymentStatus   String    // Paid, Partial, Unpaid
+  createdAt       DateTime  @default(now())
+
+  @@index([supplierName])
+  @@index([partnerId])
+  @@index([paymentStatus])
+}
+
+model PurchasePayment {
+  id           String    @id @default(cuid())
+  supplierId   String?
+  supplierName String
+  billId       String?
+  amountPaid   BigInt
+  paymentDate  String?
+  paymentMode  String?   // NEFT, RTGS, Cheque
+  bankRefNo    String?
+  remarks      String?
+  partnerId    String?
+  createdAt    DateTime  @default(now())
+
+  @@index([supplierId])
+  @@index([billId])
+  @@index([partnerId])
 }
 
 model LabourWage {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   projectId       String
   projectName     String
   partnerId       String?
@@ -110,74 +198,211 @@ model LabourWage {
   totalDailyWage  BigInt?
   daysWorked      Int?
   totalWeeklyWage BigInt
-  status          String   // Approved, Paid
+  status          String    // Approved, Paid
   paidDate        DateTime?
+  createdAt       DateTime  @default(now())
   
-  project         Project  @relation(fields: [projectId], references: [id])
+  project         Project   @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([partnerId])
 }
 
 model Client {
-  id                  String   @id @default(cuid())
-  name                String
-  contactPerson       String
-  mobile              String
-  email               String
-  projectAssigned     String?
-  totalContractValue  BigInt
-  totalReceived       BigInt
-  pendingBalance      BigInt
+  id                 String    @id @default(cuid())
+  name               String
+  contactPerson      String
+  mobile             String
+  email              String
+  projectAssigned    String?
+  totalContractValue BigInt
+  totalReceived      BigInt
+  pendingBalance     BigInt
+  createdAt          DateTime  @default(now())
   
-  users               User[]
+  users              User[]
+
+  @@index([name])
+}
+
+model ClientPayment {
+  id            String    @id @default(cuid())
+  clientId      String?
+  clientName    String
+  projectId     String?
+  projectName   String?
+  amount        BigInt
+  date          String?
+  mode          String?   // RTGS, NEFT, Cheque, Cash
+  refNo         String?
+  milestone     String?
+  receiptStatus String?   // Verified, Pending
+  partnerId     String?
+  createdAt     DateTime  @default(now())
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([partnerId])
 }
 
 model Supplier {
-  id                 String   @id @default(cuid())
+  id                 String    @id @default(cuid())
   name               String
+  category           String?
   materialCategory   String?
   contactPerson      String?
   mobile             String?
   email              String?
   city               String?
+  location           String?
+  gstin              String?
   outstandingBalance BigInt?
-}
-
-model PurchaseBill {
-  id              String   @id @default(cuid())
-  billNumber      String   @unique
-  supplierName    String
-  poRef           String?
-  projectId       String?
-  projectName     String?
-  partnerId       String?
-  baseAmount      BigInt
-  gstAmount       BigInt
-  totalBillAmount BigInt
-  approvalStatus  String
-  paymentStatus   String
-  createdAt       DateTime @default(now())
+  createdAt          DateTime  @default(now())
 }
 
 model Subcontractor {
-  id            String   @id @default(cuid())
-  firmName      String
-  tradeScope    String
-  projectId     String?
-  projectName   String?
-  partnerId     String?
-  contractValue BigInt
-  paidAmount    BigInt
-  pendingAmount BigInt
-  progress      Int
+  id                String    @id @default(cuid())
+  firmName          String?
+  name              String?
+  tradeScope        String?
+  workType          String?
+  projectId         String?
+  projectName       String?
+  partnerId         String?
+  contractValue     BigInt
+  paidAmount        BigInt?
+  totalPaid         BigInt?
+  pendingAmount     BigInt?
+  pendingBalance    BigInt?
+  totalBilled       BigInt?
+  progress          Int?
+  completionPercent Int?
+  createdAt         DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([partnerId])
 }
 
 model Asset {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
   assetName        String
   category         String
   siteAssigned     String?
+  projectId        String?
+  projectName      String?
   partnerId        String?
   purchaseValue    BigInt
   valuationCurrent BigInt
   condition        String
   status           String
+  createdAt        DateTime  @default(now())
+}
+
+model Vehicle {
+  id                     String   @id @default(cuid())
+  vehicleNo              String   @unique
+  type                   String
+  driverName             String?
+  driverMobile           String?
+  currentSite            String?
+  status                 String   @default("Active")
+  fuelConsumptionMonthly String?
+  createdAt              DateTime @default(now())
+
+  @@index([vehicleNo])
+}
+
+model CompanySetting {
+  id           String   @id @default("COMPANY-DEFAULT")
+  name         String
+  tagline      String?
+  established  Int?
+  headquarters String?
+  gstin        String?
+  pan          String?
+  phone        String?
+  email        String?
+  website      String?
+  updatedAt    DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  userName  String
+  userRole  String
+  action    String
+  module    String
+  details   String
+  ipAddress String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([module])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  role      String?  // ADMIN, PARTNER, CLIENT, WORKER
+  title     String
+  message   String
+  type      String   // INFO, WARNING, SUCCESS, ERROR
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([role])
+  @@index([read])
+}
+
+model WorkerTask {
+  id          String   @id @default(cuid())
+  workerId    String
+  workerName  String?
+  projectId   String?
+  projectName String?
+  title       String
+  description String?
+  priority    String   @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  dueDate     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@index([workerId])
+  @@index([status])
+}
+
+model ClientQuery {
+  id          String   @id @default(cuid())
+  clientId    String
+  clientName  String
+  projectId   String
+  projectName String?
+  subject     String
+  message     String
+  status      String   @default("SUBMITTED") // SUBMITTED, IN_REVIEW, ANSWERED
+  reply       String?
+  createdAt   DateTime @default(now())
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model WorkerAttendance {
+  id          String   @id @default(cuid())
+  workerId    String
+  workerName  String
+  projectId   String?
+  projectName String?
+  date        String
+  punchInTime String
+  status      String   @default("PRESENT") // PRESENT, HALF_DAY, ABSENT
+  createdAt   DateTime @default(now())
+
+  @@index([workerId])
+  @@index([date])
 }

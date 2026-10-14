@@ -55,33 +55,29 @@ export const api = {
   getAuthToken,
 
   async login(email, password) {
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed. Please check your credentials.');
-      }
-
-      // Store real JWT token and user profile
-      localStorage.setItem(TOKEN_KEY, data.token);
-      localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-
-      return data;
-    } catch (err) {
-      throw err;
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Login failed. Please check your credentials.');
     }
+
+    // Store real JWT token and user profile
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+
+    return data;
   },
 
   async logout() {
     try {
       await fetch('/api/auth/logout', { method: 'POST', headers: getAuthHeaders() });
     } catch (e) {
-      // offline logout
+      // offline logout fallback
     }
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -104,6 +100,205 @@ export const api = {
       return null;
     } catch (e) {
       return getAuthUser();
+    }
+  },
+
+  async changePassword(currentPassword, newPassword) {
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to change password.');
+    return data;
+  },
+
+  // Admin User Management Services
+  async getUsers(filters = {}) {
+    try {
+      const params = new URLSearchParams(filters).toString();
+      const res = await fetch(`/api/admin/users?${params}`, { headers: getAuthHeaders() });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Failed to fetch admin users from server:', e);
+    }
+    const current = getStoredData();
+    return current.users || [];
+  },
+
+  async createUser(userData) {
+    const res = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(userData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to create user.');
+    return data;
+  },
+
+  async updateUser(userId, userData) {
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(userData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update user.');
+    return data;
+  },
+
+  async toggleUserStatus(userId, status) {
+    const res = await fetch(`/api/admin/users/${userId}/status`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ status }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to change status.');
+    return data;
+  },
+
+  async resetUserPassword(userId, newPassword) {
+    const res = await fetch(`/api/admin/users/${userId}/reset-password`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to reset password.');
+    return data;
+  },
+
+  async deleteUser(userId) {
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to delete user.');
+    return data;
+  },
+
+  async getAuditLogs() {
+    try {
+      const res = await fetch('/api/admin/audit-logs', { headers: getAuthHeaders() });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Failed to fetch audit logs from backend:', e);
+    }
+    const current = getStoredData();
+    return current.auditLogs || [];
+  },
+
+  // Client Portal Services
+  async getClientPortalData() {
+    try {
+      const res = await fetch('/api/client/portal-data', { headers: getAuthHeaders() });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Using client fallback for portal data:', e);
+    }
+    return null;
+  },
+
+  async submitClientQuery(queryData) {
+    const res = await fetch('/api/client/query', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(queryData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to submit query.');
+    return data;
+  },
+
+  async notifyClientPayment(paymentData) {
+    const res = await fetch('/api/client/notify-payment', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(paymentData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to notify payment.');
+    return data;
+  },
+
+  // Worker Portal Services
+  async getWorkerPortalData() {
+    try {
+      const res = await fetch('/api/worker/portal-data', { headers: getAuthHeaders() });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Using worker fallback for portal data:', e);
+    }
+    return null;
+  },
+
+  async updateWorkerTaskStatus(taskId, status) {
+    const res = await fetch(`/api/worker/tasks/${taskId}/status`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ status }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update task.');
+    return data;
+  },
+
+  async punchWorkerAttendance() {
+    const res = await fetch('/api/worker/attendance', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to punch in.');
+    return data;
+  },
+
+  async submitWorkerSiteUpdate(updateData) {
+    const res = await fetch('/api/worker/site-update', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(updateData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to submit site update.');
+    return data;
+  },
+
+  async updateWorkerDeliveryStatus(poId, status, notes) {
+    const res = await fetch('/api/worker/delivery-status', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ poId, status, notes }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update delivery status.');
+    return data;
+  },
+
+  // Notification Services
+  async getNotifications() {
+    try {
+      const res = await fetch('/api/notifications', { headers: getAuthHeaders() });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      // fallback
+    }
+    return [];
+  },
+
+  async markNotificationRead(id) {
+    try {
+      await fetch(`/api/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+      });
+    } catch (e) {
+      // offline fallback
     }
   },
 
@@ -132,49 +327,50 @@ export const api = {
   },
 
   async updateItem(moduleName, item) {
+    const res = await fetch(`/api/${moduleName}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item),
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to save to database.');
+    }
+    const result = await res.json();
+    const savedItem = result.item || item;
+
     const currentData = getStoredData();
     const list = currentData[moduleName] || [];
-    
     const index = list.findIndex((i) => i.id === item.id);
     let updatedList;
     if (index >= 0) {
       updatedList = [...list];
-      updatedList[index] = item;
+      updatedList[index] = savedItem;
     } else {
-      updatedList = [item, ...list];
+      updatedList = [savedItem, ...list];
     }
 
     const newData = { ...currentData, [moduleName]: updatedList };
     saveStoredData(newData);
-
-    try {
-      await fetch(`/api/${moduleName}`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item),
-      });
-    } catch (e) {
-      // client-side update handles fallback
-    }
     return newData;
   },
 
   async deleteItem(moduleName, itemId) {
+    const res = await fetch(`/api/${moduleName}/${itemId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to delete on database.');
+    }
+
     const currentData = getStoredData();
     const list = currentData[moduleName] || [];
     const updatedList = list.filter((i) => i.id !== itemId);
 
     const newData = { ...currentData, [moduleName]: updatedList };
     saveStoredData(newData);
-
-    try {
-      await fetch(`/api/${moduleName}/${itemId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-    } catch (e) {
-      // client fallback
-    }
     return newData;
   },
 

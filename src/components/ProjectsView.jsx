@@ -17,9 +17,18 @@ import {
   Search,
   FileSpreadsheet,
   Building2,
-  FolderTree
+  FolderTree,
+  HelpCircle,
+  Info,
+  Edit3,
+  Trash2,
+  Table as TableIcon,
+  LayoutGrid
 } from 'lucide-react';
 import { exportToExcel } from '../utils/excelExport';
+import { MODULE_DESCRIPTIONS } from '../data/moduleDescriptions';
+import DataTable from './DataTable';
+import ConfirmModal from './ConfirmModal';
 
 const inputClasses = 'w-full bg-white border border-[#E5E7EB] rounded-[10px] px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 transition-all';
 const selectClasses = 'w-full bg-white border border-[#E5E7EB] rounded-[10px] px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer';
@@ -28,15 +37,20 @@ export default function ProjectsView({
   data, 
   selectedPartner, 
   onSaveProject, 
+  onEditProject,
   onDeleteProject,
   onSaveExpense,
   onDeleteExpense
 }) {
   // Navigation drill-down state: 'districts' -> 'divisions' -> 'sites' -> 'siteDetail'
+  const [displayMode, setDisplayMode] = useState('hierarchy'); // 'hierarchy' | 'table'
+  const [deleteProjectTarget, setDeleteProjectTarget] = useState(null);
+  const [deleteExpenseTarget, setDeleteExpenseTarget] = useState(null);
   const [viewLevel, setViewLevel] = useState('districts');
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState(null);
   const [selectedSiteId, setSelectedSiteId] = useState(null);
+  const [showInfoTooltip, setShowInfoTooltip] = useState(false);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
@@ -119,6 +133,137 @@ export default function ProjectsView({
 
     return tree;
   }, [filteredProjects]);
+
+  const projectDistricts = useMemo(() => {
+    const set = new Set((filteredProjects || []).map(p => p.district).filter(Boolean));
+    return Array.from(set);
+  }, [filteredProjects]);
+
+  const projectColumns = [
+    {
+      key: 'name',
+      header: 'Site Name & ID',
+      render: (val, row) => (
+        <div className="flex items-center space-x-2.5">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 text-[#2563EB] font-bold flex items-center justify-center text-xs shrink-0">
+            <Building className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="font-bold text-slate-900 block text-xs">{val}</span>
+            <span className="text-[10px] text-slate-400 font-mono">{row.id}</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'district',
+      header: 'District / Division',
+      render: (val, row) => (
+        <div className="text-xs">
+          <span className="font-semibold text-slate-800 block">{val || 'Other'}</span>
+          <span className="text-[11px] text-slate-400 font-medium">{row.division || 'Main'}</span>
+        </div>
+      )
+    },
+    {
+      key: 'clientName',
+      header: 'Client / Authority',
+      render: (val) => (
+        <span className="text-xs text-slate-700 font-medium">{val || 'Private'}</span>
+      )
+    },
+    {
+      key: 'partnerName',
+      header: 'Partner In-Charge',
+      render: (val) => (
+        <span className="badge badge-info text-[11px] font-medium">{val}</span>
+      )
+    },
+    {
+      key: 'budget',
+      header: 'Approved Budget',
+      align: 'right',
+      render: (val) => (
+        <span className="font-bold text-slate-900 font-mono text-xs">
+          {formatCurrency(val)}
+        </span>
+      )
+    },
+    {
+      key: 'actualCost',
+      header: 'Actual Spent',
+      align: 'right',
+      render: (val) => (
+        <span className="font-medium text-slate-700 font-mono text-xs">
+          {formatCurrency(val)}
+        </span>
+      )
+    },
+    {
+      key: 'completionPercent',
+      header: 'Completion %',
+      render: (val) => {
+        const pct = val || 0;
+        return (
+          <div className="flex items-center space-x-2">
+            <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-[#2563EB]'}`} 
+                style={{ width: `${Math.min(pct, 100)}%` }} 
+              />
+            </div>
+            <span className="text-xs font-semibold text-slate-700 font-mono">{pct}%</span>
+          </div>
+        );
+      }
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (val) => (
+        <span className={`badge ${val === 'Completed' ? 'badge-success' : 'badge-info'}`}>
+          {val}
+        </span>
+      )
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      render: (_, row) => (
+        <div className="flex items-center justify-end space-x-1">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedSiteId(row.id);
+              setViewLevel('siteDetail');
+              setDisplayMode('hierarchy');
+            }}
+            className="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-[#2563EB] rounded-lg text-xs font-medium transition-colors"
+            title="Open Site Explorer & Expenses"
+          >
+            Site Details &rarr;
+          </button>
+          <button
+            type="button"
+            onClick={() => onEditProject ? onEditProject(row) : null}
+            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            title="Edit Project"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeleteProjectTarget(row)}
+            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+            title="Delete Project"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )
+    }
+  ];
 
   const selectedSite = useMemo(() => {
     return (data.projects || []).find((p) => p.id === selectedSiteId) || null;
@@ -303,6 +448,16 @@ export default function ProjectsView({
     e.preventDefault();
     if (!formState.name || !formState.clientName) return;
 
+    const budgetVal = Number(formState.budget) || 0;
+    if (budgetVal <= 0) {
+      alert('Project budget must be greater than ₹0.');
+      return;
+    }
+    if (budgetVal > 5000000) {
+      alert('Project budget cannot exceed ₹50,00,000 (50 Lakhs) as per ERP policy limit.');
+      return;
+    }
+
     const newProject = {
       id: `PRJ-${Math.floor(100 + Math.random() * 900)}`,
       name: formState.name,
@@ -312,7 +467,7 @@ export default function ProjectsView({
       partnerId: formState.partnerName === 'Rajesh Patel' ? 'P1' : formState.partnerName === 'Suresh Sharma' ? 'P2' : 'P3',
       partnerName: formState.partnerName,
       clientName: formState.clientName,
-      budget: Number(formState.budget) || 0,
+      budget: budgetVal,
       actualCost: Number(formState.actualCost) || 0,
       startDate: formState.startDate || new Date().toISOString().slice(0, 10),
       targetEndDate: formState.targetEndDate,
@@ -386,17 +541,66 @@ export default function ProjectsView({
                 <FolderTree className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-slate-900">
-                  District & Division Site Hierarchy
-                </h2>
+                <div className="flex items-center space-x-2">
+                  <h2 className="text-base font-semibold text-slate-900 tracking-tight">
+                    {MODULE_DESCRIPTIONS.projects.title}
+                  </h2>
+                  <div className="relative inline-block">
+                    <button
+                      type="button"
+                      onMouseEnter={() => setShowInfoTooltip(true)}
+                      onMouseLeave={() => setShowInfoTooltip(false)}
+                      onClick={() => setShowInfoTooltip(prev => !prev)}
+                      className="text-slate-400 hover:text-blue-600 transition-colors p-0.5 rounded-full hover:bg-slate-100"
+                      title="Module Description"
+                    >
+                      <HelpCircle className="w-4 h-4" />
+                    </button>
+                    {showInfoTooltip && (
+                      <div className="absolute left-0 z-40 w-72 sm:w-80 mt-1 p-3 bg-slate-900 text-white text-xs rounded-xl shadow-xl pointer-events-none animate-in fade-in zoom-in-95 duration-150 leading-relaxed font-normal">
+                        <div className="flex items-start space-x-2">
+                          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-slate-100 mb-1">{MODULE_DESCRIPTIONS.projects.title}</p>
+                            <p className="text-slate-300 text-[11px]">{MODULE_DESCRIPTIONS.projects.fullDescription}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Structured operational drill-down: District &rarr; Taluka/Division &rarr; Site with rolled-up financials.
+                  {MODULE_DESCRIPTIONS.projects.shortDescription}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2.5">
+          <div className="flex items-center space-x-2">
+            <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-xs mr-1">
+              <button
+                type="button"
+                onClick={() => setDisplayMode('hierarchy')}
+                className={`p-1.5 rounded-md text-xs font-medium transition-colors flex items-center space-x-1.5 ${
+                  displayMode === 'hierarchy' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-800'
+                }`}
+                title="Hierarchy Drill-Down Explorer"
+              >
+                <FolderTree className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Hierarchy Tree</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setDisplayMode('table')}
+                className={`p-1.5 rounded-md text-xs font-medium transition-colors flex items-center space-x-1.5 ${
+                  displayMode === 'table' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-800'
+                }`}
+                title="Master Projects Table"
+              >
+                <TableIcon className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">All Projects Table</span>
+              </button>
+            </div>
             <button
               onClick={() => setShowAddForm(prev => !prev)}
               className="btn-primary flex items-center space-x-2 text-xs font-medium"
@@ -409,7 +613,7 @@ export default function ProjectsView({
               className="btn-secondary flex items-center space-x-2 text-xs font-medium"
             >
               <Download className="w-4 h-4 text-slate-500" />
-              <span>Export Hierarchy Excel</span>
+              <span>Export Excel</span>
             </button>
           </div>
         </div>
@@ -570,14 +774,16 @@ export default function ProjectsView({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Sanctioned Budget (INR)</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Sanctioned Budget (INR - Max ₹50L)</label>
                 <input
                   type="number"
                   required
+                  min="1"
+                  max="5000000"
                   name="budget"
                   value={formState.budget}
                   onChange={handleChange}
-                  placeholder="50000000"
+                  placeholder="e.g. 4500000 (Max ₹50 Lakh)"
                   className={inputClasses}
                 />
               </div>
@@ -619,10 +825,23 @@ export default function ProjectsView({
         </section>
       )}
 
-      {/* =========================================================
-          LEVEL 0: ALL DISTRICTS VIEW
-          ========================================================= */}
-      {viewLevel === 'districts' && (
+      {displayMode === 'table' ? (
+        <DataTable
+          columns={projectColumns}
+          data={filteredProjects}
+          searchPlaceholder="Search projects by name, location, district, client, partner..."
+          filterKey="district"
+          filterOptions={projectDistricts}
+          filterLabel="All Districts"
+          pageSize={10}
+          exportFileName="Shivshakti_Projects_Master_List.xlsx"
+        />
+      ) : (
+        <>
+          {/* =========================================================
+              LEVEL 0: ALL DISTRICTS VIEW
+              ========================================================= */}
+          {viewLevel === 'districts' && (
         <div className="space-y-6">
           {/* Global Rollup KPI Strip */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -917,21 +1136,31 @@ export default function ProjectsView({
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5">
                   <button
                     onClick={() => handleSelectSite(site.id)}
                     className="btn-primary flex-1 py-2 text-xs font-medium flex items-center justify-center space-x-1.5"
                   >
                     <Receipt className="w-3.5 h-3.5" />
-                    <span>Open Site Details & Expenses &rarr;</span>
+                    <span>Open Site Details &rarr;</span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => onDeleteProject(site.id)}
-                    className="px-2.5 py-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 text-xs font-medium transition-colors"
+                    onClick={() => onEditProject ? onEditProject(site) : null}
+                    className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 text-xs font-medium transition-colors"
+                    title="Edit Site Record"
                   >
-                    Delete
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDeleteProjectTarget(site)}
+                    className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 text-xs font-medium transition-colors"
+                    title="Delete Site Record"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -964,8 +1193,24 @@ export default function ProjectsView({
                 </p>
               </div>
 
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-2">
                 <span className="badge badge-info">{selectedSite.status}</span>
+                <button
+                  type="button"
+                  onClick={() => onEditProject ? onEditProject(selectedSite) : null}
+                  className="btn-secondary flex items-center space-x-1.5 text-xs font-medium"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Edit Site</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteProjectTarget(selectedSite)}
+                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg text-xs font-medium transition-colors"
+                  title="Delete Site Record"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => {
                     setSiteExpenseForm({
@@ -1170,13 +1415,7 @@ export default function ProjectsView({
                         <td className="text-right">
                           <button
                             type="button"
-                            onClick={() => {
-                              if (window.confirm(`Delete this ${exp.categoryLabel} expense record (${exp.reference || exp.id})?`)) {
-                                if (onDeleteExpense) {
-                                  onDeleteExpense(exp.source || 'otherExpenses', exp.id);
-                                }
-                              }
-                            }}
+                            onClick={() => setDeleteExpenseTarget(exp)}
                             className="rounded-[6px] bg-rose-50 border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-600 hover:bg-rose-100 transition-colors"
                           >
                             Delete
@@ -1190,6 +1429,8 @@ export default function ProjectsView({
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
 
       {/* =========================================================
@@ -1341,6 +1582,42 @@ export default function ProjectsView({
           </div>
         </div>
       )}
+
+      {/* Project Deletion Confirmation */}
+      <ConfirmModal
+        isOpen={Boolean(deleteProjectTarget)}
+        title="Delete Construction Project Site"
+        message={`Are you sure you want to permanently delete site "${deleteProjectTarget?.name}" (${deleteProjectTarget?.id})? All linked site expenses, purchase orders, material deliveries, and accounting history for this project will be deleted.`}
+        confirmLabel="Yes, Delete Project Site"
+        isDestructive={true}
+        onConfirm={() => {
+          if (deleteProjectTarget) {
+            onDeleteProject(deleteProjectTarget.id);
+            setDeleteProjectTarget(null);
+            if (selectedSiteId === deleteProjectTarget.id) {
+              setViewLevel('districts');
+              setSelectedSiteId(null);
+            }
+          }
+        }}
+        onCancel={() => setDeleteProjectTarget(null)}
+      />
+
+      {/* Expense Record Deletion Confirmation */}
+      <ConfirmModal
+        isOpen={Boolean(deleteExpenseTarget)}
+        title="Delete Site Expense Record"
+        message={`Are you sure you want to delete this ${deleteExpenseTarget?.categoryLabel || 'site'} expense (${deleteExpenseTarget?.title || deleteExpenseTarget?.reference || deleteExpenseTarget?.id}) for ₹${deleteExpenseTarget?.amount ? Number(deleteExpenseTarget.amount).toLocaleString('en-IN') : 0}?`}
+        confirmLabel="Yes, Delete Record"
+        isDestructive={true}
+        onConfirm={() => {
+          if (deleteExpenseTarget && onDeleteExpense) {
+            onDeleteExpense(deleteExpenseTarget.source || 'otherExpenses', deleteExpenseTarget.id);
+            setDeleteExpenseTarget(null);
+          }
+        }}
+        onCancel={() => setDeleteExpenseTarget(null)}
+      />
     </div>
   );
 }

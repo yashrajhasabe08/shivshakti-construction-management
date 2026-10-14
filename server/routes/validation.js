@@ -1,20 +1,30 @@
 import express from 'express';
 
-export function createValidationRouter(readDB) {
+export function createValidationRouter(prisma) {
   const router = express.Router();
 
   // GET /api/validation/check
-  router.get('/check', (req, res) => {
+  router.get('/check', async (req, res) => {
     try {
-      const db = readDB();
-      const partners = db.partners || [];
-      const projects = db.projects || [];
-      const otherExpenses = db.otherExpenses || [];
-      const purchaseOrders = db.purchaseOrders || [];
-      const purchaseBills = db.purchaseBills || [];
-      const labourWages = db.labourWages || [];
-      const subcontractors = db.subcontractors || [];
-      const clientPayments = db.clientPayments || [];
+      const [
+        partners,
+        projects,
+        otherExpenses,
+        purchaseOrders,
+        purchaseBills,
+        labourWages,
+        subcontractors,
+        clientPayments
+      ] = await Promise.all([
+        prisma.partner.findMany(),
+        prisma.project.findMany(),
+        prisma.expense.findMany(),
+        prisma.purchaseOrder.findMany(),
+        prisma.purchaseBill.findMany(),
+        prisma.labourWage.findMany(),
+        prisma.subcontractor.findMany(),
+        prisma.clientPayment.findMany()
+      ]);
 
       // Check missing partnerIds
       const missingPartnerIdRecords = [];
@@ -49,7 +59,7 @@ export function createValidationRouter(readDB) {
         const sumPOs = pPOs.reduce((s, po) => s + (Number(po.totalAmount) || 0), 0);
         const sumBills = pBills.reduce((s, pb) => s + (Number(pb.totalBillAmount) || 0), 0);
         const sumWages = pWages.reduce((s, lw) => s + (Number(lw.totalWeeklyWage) || 0), 0);
-        const sumSubs = pSubs.reduce((s, sc) => s + (Number(sc.paidAmount) || 0), 0);
+        const sumSubs = pSubs.reduce((s, sc) => s + (Number(sc.paidAmount || sc.totalPaid) || 0), 0);
         const sumReceipts = pReceipts.reduce((s, cp) => s + (Number(cp.amount) || 0), 0);
 
         const totalOperationalOutflow = sumDirect + sumBills + sumWages + sumSubs;
@@ -78,6 +88,7 @@ export function createValidationRouter(readDB) {
         missingPartnerIdCount: missingPartnerIdRecords.length,
         missingPartnerIdRecords,
         partners: partnerBreakdown,
+        databaseSource: 'PostgreSQL (Supabase)',
         timestamp: new Date().toISOString()
       });
     } catch (err) {

@@ -1,4 +1,11 @@
 import * as XLSX from 'xlsx';
+import { 
+  TOTAL_PROJECT_COST, 
+  SITE_COST_DISTRIBUTION, 
+  MATERIAL_COST_DISTRIBUTION, 
+  PARTNER_COST_DISTRIBUTION,
+  PARTNER_EXPENSE_BREAKDOWNS
+} from '../data/costDistributionData';
 
 export const exportToExcel = (data, filename = 'Shivshakti_Report.xlsx', sheetName = 'Data') => {
   try {
@@ -363,3 +370,188 @@ export const exportMasterWorkbook = (fullData) => {
     alert("Error building Master Excel Workbook.");
   }
 };
+
+/**
+ * Feature 1 & Feature 4: Export Purchase Orders with Itemized Material Breakdown & Linked Bills
+ */
+export const exportPurchaseOrdersWithMaterials = (purchaseOrders = [], purchaseBills = []) => {
+  try {
+    const workbook = XLSX.utils.book_new();
+    const rows = [];
+
+    purchaseOrders.forEach(po => {
+      const linked = (purchaseBills || []).filter(
+        b => b.poRef === po.poNumber || b.poRef === po.id || (po.linkedBills && po.linkedBills.includes(b.billNumber))
+      );
+      const linkedBillNumbers = linked.map(b => b.billNumber).join(', ') || 'None';
+      const billPaymentStatus = linked.map(b => `${b.billNumber} (${b.paymentStatus})`).join(', ') || 'N/A';
+
+      if (po.items && po.items.length > 0) {
+        po.items.forEach((item, idx) => {
+          rows.push({
+            'PO Number': po.poNumber,
+            'Supplier Vendor': po.supplierName,
+            'Project Site': po.projectName,
+            'Order Date': po.orderDate,
+            'Item #': idx + 1,
+            'Material Name': item.name || item.materialName,
+            'Description': item.description || 'Standard construction supply',
+            'Quantity': item.quantity,
+            'Unit': item.unit,
+            'Rate Per Unit (INR)': item.rate || item.ratePerUnit,
+            'Amount (INR)': item.amount || (item.quantity * (item.rate || item.ratePerUnit)),
+            'Item Delivery Status': item.deliveryStatus || po.deliveryStatus,
+            'Overall PO Status': po.deliveryStatus,
+            'Linked Bill Refs': linkedBillNumbers,
+            'Bill Status': billPaymentStatus,
+            'Assigned Vehicle': po.vehicleNumber || 'N/A',
+            'Driver Name': po.driverName || 'N/A',
+            'Driver Mobile': po.driverMobile || 'N/A'
+          });
+        });
+      } else {
+        rows.push({
+          'PO Number': po.poNumber,
+          'Supplier Vendor': po.supplierName,
+          'Project Site': po.projectName,
+          'Order Date': po.orderDate,
+          'Item #': 1,
+          'Material Name': 'General Material Consignment',
+          'Description': po.dispatchNotes || 'General delivery',
+          'Quantity': 1,
+          'Unit': 'Lot',
+          'Rate Per Unit (INR)': po.totalAmount,
+          'Amount (INR)': po.totalAmount,
+          'Item Delivery Status': po.deliveryStatus,
+          'Overall PO Status': po.deliveryStatus,
+          'Linked Bill Refs': linkedBillNumbers,
+          'Bill Status': billPaymentStatus,
+          'Assigned Vehicle': po.vehicleNumber || 'N/A',
+          'Driver Name': po.driverName || 'N/A',
+          'Driver Mobile': po.driverMobile || 'N/A'
+        });
+      }
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    worksheet['!cols'] = Array(18).fill({ wch: 22 });
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'PO Materials Breakdown');
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `Shivshakti_Purchase_Orders_Material_Breakdown_${todayStr}.xlsx`);
+  } catch (error) {
+    console.error("PO Materials Export Error:", error);
+    alert("Failed to export Purchase Orders with materials breakdown.");
+  }
+};
+
+/**
+ * Feature 2 (Addition): Partner Expense Breakdown Report (₹1.25 Crore Portfolio Split)
+ * Exports the exact required dossier for Mentor / Professor approval.
+ */
+export const exportPartnerExpenseBreakdownReport = () => {
+  try {
+    const workbook = XLSX.utils.book_new();
+
+    // 1. Grand Summary Sheet (1.25 Crore Split)
+    const summaryRows = [
+      ...SITE_COST_DISTRIBUTION.map(s => ({
+        'Distribution Category': 'By Site',
+        'Entity / Head': `${s.projectName} (${s.projectId})`,
+        'Amount (INR)': s.amount,
+        'Share %': `${s.percentage}%`
+      })),
+      { 'Distribution Category': 'By Site TOTAL', 'Entity / Head': 'Total Project Cost (All 3 Sites)', 'Amount (INR)': TOTAL_PROJECT_COST, 'Share %': '100%' },
+      { 'Distribution Category': '', 'Entity / Head': '', 'Amount (INR)': '', 'Share %': '' },
+      ...MATERIAL_COST_DISTRIBUTION.map(m => ({
+        'Distribution Category': 'By Material Head',
+        'Entity / Head': m.category,
+        'Amount (INR)': m.amount,
+        'Share %': `${m.percentage}%`
+      })),
+      { 'Distribution Category': 'By Material TOTAL', 'Entity / Head': 'Total Materials & Resources', 'Amount (INR)': TOTAL_PROJECT_COST, 'Share %': '100%' },
+      { 'Distribution Category': '', 'Entity / Head': '', 'Amount (INR)': '', 'Share %': '' },
+      ...PARTNER_COST_DISTRIBUTION.map(p => ({
+        'Distribution Category': 'By Partner Share',
+        'Entity / Head': `Partner ${p.partnerId} (${p.partnerName} - ${p.location})`,
+        'Amount (INR)': p.amount,
+        'Share %': `${p.percentage}%`
+      })),
+      { 'Distribution Category': 'By Partner TOTAL', 'Entity / Head': 'Total Partners Outlay', 'Amount (INR)': TOTAL_PROJECT_COST, 'Share %': '100%' }
+    ];
+    const summarySheet = XLSX.utils.json_to_sheet(summaryRows);
+    summarySheet['!cols'] = [{ wch: 25 }, { wch: 40 }, { wch: 20 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Grand Portfolio Summary');
+
+    // Helper to generate a sheet for a partner
+    const makePartnerSheet = (partnerName, partnerId, capital, spent, breakdown) => {
+      const pRows = [
+        { 'Metric / Category': 'Partner ID', 'Value / Amount (INR)': partnerId, 'Share %': '' },
+        { 'Metric / Category': 'Partner Name', 'Value / Amount (INR)': partnerName, 'Share %': '' },
+        { 'Metric / Category': 'Capital Invested', 'Value / Amount (INR)': capital, 'Share %': '' },
+        { 'Metric / Category': 'Total Spent', 'Value / Amount (INR)': spent, 'Share %': '' },
+        { 'Metric / Category': 'Remaining Capital Budget', 'Value / Amount (INR)': capital - spent, 'Share %': '' },
+        { 'Metric / Category': '--- EXPENSE BREAKDOWN ---', 'Value / Amount (INR)': '----------------', 'Share %': '------' },
+        ...breakdown.map(b => ({
+          'Metric / Category': b.category,
+          'Value / Amount (INR)': b.amount,
+          'Share %': `${b.percentage}%`
+        })),
+        { 'Metric / Category': 'TOTAL EXPENDITURE', 'Value / Amount (INR)': spent, 'Share %': '100%' }
+      ];
+      const sheet = XLSX.utils.json_to_sheet(pRows);
+      sheet['!cols'] = [{ wch: 35 }, { wch: 25 }, { wch: 12 }];
+      return sheet;
+    };
+
+    // P1 Sheet
+    const p1Data = PARTNER_EXPENSE_BREAKDOWNS.P1;
+    XLSX.utils.book_append_sheet(workbook, makePartnerSheet(p1Data.partnerName, 'P1', p1Data.capitalInvested, p1Data.totalSpent, p1Data.breakdown), 'Partner P1 - Rajesh');
+
+    // P2 Sheet
+    const p2Data = PARTNER_EXPENSE_BREAKDOWNS.P2;
+    XLSX.utils.book_append_sheet(workbook, makePartnerSheet(p2Data.partnerName, 'P2', p2Data.capitalInvested, p2Data.totalSpent, p2Data.breakdown), 'Partner P2 - Suresh');
+
+    // P3 Sheet
+    const p3Data = PARTNER_EXPENSE_BREAKDOWNS.P3;
+    XLSX.utils.book_append_sheet(workbook, makePartnerSheet(p3Data.partnerName, 'P3', p3Data.capitalInvested, p3Data.totalSpent, p3Data.breakdown), 'Partner P3 - Vikram');
+
+    // 5. Cross-Partner Comparison Matrix
+    const categories = p1Data.breakdown.map(b => b.category);
+    const matrixRows = categories.map((cat, i) => {
+      const p1Amt = p1Data.breakdown[i]?.amount || 0;
+      const p2Amt = p2Data.breakdown[i]?.amount || 0;
+      const p3Amt = p3Data.breakdown[i]?.amount || 0;
+      const total = p1Amt + p2Amt + p3Amt;
+      const avgPct = ((total / TOTAL_PROJECT_COST) * 100).toFixed(1) + '%';
+      return {
+        'Expense Category': cat,
+        'P1 Rajesh (INR)': p1Amt,
+        'P2 Suresh (INR)': p2Amt,
+        'P3 Vikram (INR)': p3Amt,
+        'Total (INR)': total,
+        '% Avg': avgPct
+      };
+    });
+
+    matrixRows.push({
+      'Expense Category': 'TOTAL SPENT',
+      'P1 Rajesh (INR)': p1Data.totalSpent,
+      'P2 Suresh (INR)': p2Data.totalSpent,
+      'P3 Vikram (INR)': p3Data.totalSpent,
+      'Total (INR)': TOTAL_PROJECT_COST,
+      '% Avg': '100%'
+    });
+
+    const matrixSheet = XLSX.utils.json_to_sheet(matrixRows);
+    matrixSheet['!cols'] = [{ wch: 30 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 20 }, { wch: 10 }];
+    XLSX.utils.book_append_sheet(workbook, matrixSheet, '3 Partners Comparison');
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `Shivshakti_Partner_Expense_Breakdown_Report_${todayStr}.xlsx`);
+  } catch (error) {
+    console.error("Partner Breakdown Export Error:", error);
+    alert("Failed to export Partner Expense Breakdown Report.");
+  }
+};
+

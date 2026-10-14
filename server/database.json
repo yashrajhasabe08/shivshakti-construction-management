@@ -7,62 +7,107 @@
   },
   "users": [
     {
+      "id": "USR-00",
+      "email": "admin@shivshakti.com",
+      "name": "Super Admin",
+      "role": "ADMIN",
+      "phone": "+91 98220 00000",
+      "title": "Chief System Administrator",
+      "status": "ACTIVE",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "passwordHash": "$2b$10$x4LZj0A2SgkCBsQRPV.pXun0gfEaD.Wp6hx6bCHun4XTFq5Lh5Oti",
+      "lastLogin": "2026-10-08T10:12:10.611Z"
+    },
+    {
       "id": "USR-01",
       "email": "rajesh@shivshakti.com",
-      "altEmail": "admin@shivshakti.com",
-      "password": "rajesh123",
-      "altPassword": "admin123",
       "name": "Rajesh Patel",
       "role": "PARTNER",
       "partnerId": "P1",
+      "phone": "+91 98220 11223",
       "location": "Pune & Kolhapur",
       "title": "Managing Partner - Commercial & Kolhapur",
-      "capitalInvested": 45000000,
-      "passwordHash": "$2b$10$O91uf4ynhD5JLLdE5q/Cze7wMeeP8WlxQenlZVYbZL66iFx6PWme6"
+      "capitalInvested": 4500000,
+      "status": "ACTIVE",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "passwordHash": "$2b$10$0KtLhsM3UgdOIci1HLOjcOq8bnGblXFsFDIAsiApX5cY91yKMUFim",
+      "lastLogin": "2026-10-08T09:36:07.570Z"
     },
     {
       "id": "USR-02",
       "email": "suresh@shivshakti.com",
-      "password": "suresh123",
       "name": "Suresh Sharma",
       "role": "PARTNER",
       "partnerId": "P2",
+      "phone": "+91 98220 22334",
       "location": "Mumbai",
       "title": "Partner - Residential & High-Rise",
-      "capitalInvested": 60000000,
-      "passwordHash": "$2b$10$OoCWUnHh3VRUoGTEAozyFOP5xj.OI3.xeiVvLDNmJI/42hXPr7GqW"
+      "capitalInvested": 5000000,
+      "status": "ACTIVE",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "passwordHash": "$2b$10$Oo9ALTxLpJyKhO87zhHGieyJgcfPwW6TljCb9iMFipkOkUFFfs2Zy",
+      "lastLogin": "2026-10-08T09:34:30.951Z"
     },
     {
       "id": "USR-03",
       "email": "vikram@shivshakti.com",
-      "password": "vikram123",
       "name": "Vikram Deshmukh",
       "role": "PARTNER",
       "partnerId": "P3",
+      "phone": "+91 98220 33445",
       "location": "Nagpur",
       "title": "Partner - Infrastructure & Heavy Earthwork",
-      "capitalInvested": 35000000,
-      "passwordHash": "$2b$10$zhifYuRr9HvE66RIkgMtnuxpvxT8Q6wXTqaOnFZWm05YpmCSLct5u"
+      "capitalInvested": 3500000,
+      "status": "ACTIVE",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "passwordHash": "$2b$10$UEDahZpEB02NDzS/N1Y8Z.FGNQv6PyFXri64jAXf59q1jXJIUy/1K"
     },
     {
       "id": "USR-04",
       "email": "client@apexinfa.com",
-      "password": "client123",
       "name": "Anand Verma",
       "role": "CLIENT",
-      "title": "Client - Apex Infrastructures Ltd",
       "clientId": "CL-01",
-      "passwordHash": "$2b$10$1L.MVolKkyJ3HaPzn20Hv.2ubbgPZVBzg9PTfFLdd42dPAq.J1PPS"
+      "phone": "+91 98220 44556",
+      "title": "Client - Apex Infrastructures Ltd",
+      "assignedProject": "PRJ-001",
+      "status": "ACTIVE",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "passwordHash": "$2b$10$H8V0Mke3t4DUqH1Zymom/eovTCLgjz3ZUE0L7iyhQCXZ8TwEFqiO.",
+      "lastLogin": "2026-10-07T19:03:12.153Z"
     },
     {
       "id": "USR-05",
       "email": "driver@shivshakti.com",
-      "password": "driver123",
       "name": "Dnyaneshwar More",
       "role": "WORKER",
+      "phone": "+91 98220 55667",
       "title": "Senior Truck Driver & Site Worker",
       "driverVehicleNo": "MH 12 QG 4821",
-      "passwordHash": "$2b$10$NezQo8Rh/EToCeDgZtAR2OpSZ2.dyy9c4KUnlkTUm06TqCuPVewDe"
+      "assignedProject": "PRJ-001",
+      "status": "ACTIVE",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "passwordHash": "$2b$10$l6.YPSbCSJ5G/SFzWZUdGexmyszMVAjlT1VK03h1HvwFJv2YSnaWS",
+      "lastLogin": "2026-10-07T18:49:47.049Z",
+      "updatedAt": "2026-10-07T19:07:01.511Z"
+    },
+    {
+      "id": "USR-4054",
+      "email": "yash@gmail.com",
+      "passwordHash": "$2b$10$ajiiQm2xfrzyvjf/vriNT.2qWx/tetCmAaVUbNOMDSw4OcmWeNvgS",
+      "name": "Yashraj Hasabe",
+      "role": "PARTNER",
+      "phone": "1234567895",
+      "partnerId": "P1",
+      "clientId": null,
+      "assignedProject": "PRJ-001",
+      "location": null,
+      "title": "Partner User",
+      "status": "INACTIVE",
+      "createdAt": "2026-10-07T19:06:14.055Z",
+      "lastLogin": "2026-10-07T19:07:25.538Z",
+      "updatedAt": "2026-10-08T10:12:22.223Z",
+      "capitalInvested": 4500000
     }
   ],
   "partners": [
@@ -72,7 +117,7 @@
       "location": "Pune",
       "role": "Managing Partner - Commercial Projects",
       "mobile": "+91 98220 11223",
-      "capitalInvested": 45000000
+      "capitalInvested": 4500000
     },
     {
       "id": "P2",
@@ -80,7 +125,7 @@
       "location": "Mumbai",
       "role": "Partner - Residential & High-Rise",
       "mobile": "+91 98211 44556",
-      "capitalInvested": 60000000
+      "capitalInvested": 5000000
     },
     {
       "id": "P3",
@@ -88,7 +133,7 @@
       "location": "Nagpur",
       "role": "Partner - Infrastructure & Heavy Earthwork",
       "mobile": "+91 98233 77889",
-      "capitalInvested": 35000000
+      "capitalInvested": 3500000
     }
   ],
   "projects": [
@@ -101,12 +146,12 @@
       "partnerId": "P1",
       "partnerName": "Rajesh Patel",
       "clientName": "Deccan Textile Infrastructure Ltd",
-      "budget": 38000000,
-      "actualCost": 24000000,
+      "budget": 3800000,
+      "actualCost": 2280000,
       "startDate": "2025-01-10",
       "targetEndDate": "2026-11-30",
       "status": "In Progress",
-      "completionPercent": 65,
+      "completionPercent": 60,
       "description": "Textile processing units and logistics bays with RCC column grid."
     },
     {
@@ -118,12 +163,12 @@
       "partnerId": "P1",
       "partnerName": "Rajesh Patel",
       "clientName": "Mahalaxmi Retail Ventures",
-      "budget": 42000000,
-      "actualCost": 29000000,
+      "budget": 4200000,
+      "actualCost": 2860000,
       "startDate": "2024-09-15",
       "targetEndDate": "2026-10-20",
       "status": "In Progress",
-      "completionPercent": 72,
+      "completionPercent": 68,
       "description": "Multi-level shopping and commercial retail space with basement parking."
     },
     {
@@ -135,12 +180,12 @@
       "partnerId": "P1",
       "partnerName": "Rajesh Patel",
       "clientName": "Maharashtra Water Resources Dept",
-      "budget": 26000000,
-      "actualCost": 16500000,
+      "budget": 2500000,
+      "actualCost": 1450000,
       "startDate": "2025-03-01",
       "targetEndDate": "2026-09-15",
       "status": "In Progress",
-      "completionPercent": 58,
+      "completionPercent": 55,
       "description": "Pump house, intake well and gravity conduit pipeline works."
     },
     {
@@ -152,12 +197,12 @@
       "partnerId": "P1",
       "partnerName": "Rajesh Patel",
       "clientName": "Apex Infrastructures Ltd",
-      "budget": 45000000,
-      "actualCost": 28500000,
+      "budget": 4500000,
+      "actualCost": 2850000,
       "startDate": "2025-02-15",
       "targetEndDate": "2027-01-30",
       "status": "In Progress",
-      "completionPercent": 62,
+      "completionPercent": 65,
       "description": "14-Storey Commercial IT Building with double basement parking."
     },
     {
@@ -169,12 +214,12 @@
       "partnerId": "P2",
       "partnerName": "Suresh Sharma",
       "clientName": "Sterling Housing Corp",
-      "budget": 82000000,
-      "actualCost": 51200000,
+      "budget": 4800000,
+      "actualCost": 3360000,
       "startDate": "2024-11-01",
       "targetEndDate": "2026-12-15",
       "status": "In Progress",
-      "completionPercent": 68,
+      "completionPercent": 70,
       "description": "Luxury Residential Tower with sea-facing apartments and podium amenities."
     },
     {
@@ -186,12 +231,12 @@
       "partnerId": "P3",
       "partnerName": "Vikram Deshmukh",
       "clientName": "Maharashtra State Logistics Ltd",
-      "budget": 31000000,
-      "actualCost": 14800000,
+      "budget": 3200000,
+      "actualCost": 1520000,
       "startDate": "2025-05-10",
       "targetEndDate": "2026-08-30",
       "status": "In Progress",
-      "completionPercent": 45,
+      "completionPercent": 48,
       "description": "Pre-Engineered Steel Warehouse Structure with heavy concrete flooring."
     },
     {
@@ -203,8 +248,8 @@
       "partnerId": "P1",
       "partnerName": "Rajesh Patel",
       "clientName": "Western Transport Corridor Authority",
-      "budget": 29000000,
-      "actualCost": 26000000,
+      "budget": 2800000,
+      "actualCost": 2650000,
       "startDate": "2024-06-01",
       "targetEndDate": "2026-04-15",
       "status": "Near Completion",
@@ -220,9 +265,9 @@
       "mobile": "+91 98900 12345",
       "email": "anand@apexinfa.com",
       "projectAssigned": "Shivshakti Commercial Tower",
-      "totalContractValue": 52000000,
-      "totalReceived": 35000000,
-      "pendingBalance": 17000000
+      "totalContractValue": 4800000,
+      "totalReceived": 3200000,
+      "pendingBalance": 1600000
     },
     {
       "id": "CL-02",
@@ -231,9 +276,9 @@
       "mobile": "+91 98200 67890",
       "email": "m.kapoor@sterling.in",
       "projectAssigned": "Marine Drive Residency",
-      "totalContractValue": 95000000,
-      "totalReceived": 62000000,
-      "pendingBalance": 33000000
+      "totalContractValue": 5000000,
+      "totalReceived": 3500000,
+      "pendingBalance": 1500000
     },
     {
       "id": "CL-03",
@@ -242,9 +287,9 @@
       "mobile": "+91 98450 99887",
       "email": "sanjay@mslogistics.gov.in",
       "projectAssigned": "Nagpur Logistics Hub",
-      "totalContractValue": 36000000,
-      "totalReceived": 18000000,
-      "pendingBalance": 18000000
+      "totalContractValue": 3400000,
+      "totalReceived": 1800000,
+      "pendingBalance": 1600000
     },
     {
       "id": "CL-04",
@@ -253,9 +298,9 @@
       "mobile": "+91 98765 43210",
       "email": "r.nambiar@wtca.org",
       "projectAssigned": "Pune Highway Expansion Site",
-      "totalContractValue": 32000000,
-      "totalReceived": 29000000,
-      "pendingBalance": 3000000
+      "totalContractValue": 3000000,
+      "totalReceived": 2600000,
+      "pendingBalance": 400000
     },
     {
       "id": "CL-05",
@@ -264,9 +309,9 @@
       "mobile": "+91 98224 55667",
       "email": "siddharth@mahalaxmiretail.in",
       "projectAssigned": "Karveer Commercial Complex",
-      "totalContractValue": 48000000,
-      "totalReceived": 32000000,
-      "pendingBalance": 16000000
+      "totalContractValue": 4000000,
+      "totalReceived": 2500000,
+      "pendingBalance": 1500000
     }
   ],
   "clientPayments": [
@@ -276,7 +321,7 @@
       "clientName": "Apex Infrastructures Ltd",
       "projectId": "PRJ-001",
       "projectName": "Shivshakti Commercial Tower",
-      "amount": 15000000,
+      "amount": 1500000,
       "date": "2026-06-15",
       "mode": "RTGS",
       "refNo": "HDFCR52026061501",
@@ -290,7 +335,7 @@
       "clientName": "Sterling Housing Corp",
       "projectId": "PRJ-002",
       "projectName": "Marine Drive Residency",
-      "amount": 22000000,
+      "amount": 2000000,
       "date": "2026-07-02",
       "mode": "NEFT",
       "refNo": "ICICN2026070288",
@@ -304,7 +349,7 @@
       "clientName": "Maharashtra State Logistics Ltd",
       "projectId": "PRJ-003",
       "projectName": "Nagpur Logistics Hub",
-      "amount": 8000000,
+      "amount": 800000,
       "date": "2026-07-20",
       "mode": "Cheque",
       "refNo": "CHQ-882104",
@@ -318,7 +363,7 @@
       "clientName": "Apex Infrastructures Ltd",
       "projectId": "PRJ-001",
       "projectName": "Shivshakti Commercial Tower",
-      "amount": 10000000,
+      "amount": 1000000,
       "date": "2026-08-01",
       "mode": "RTGS",
       "refNo": "HDFCR52026080199",
@@ -332,7 +377,7 @@
       "clientName": "Mahalaxmi Retail Ventures",
       "projectId": "PRJ-KOL-02",
       "projectName": "Karveer Commercial Complex",
-      "amount": 16000000,
+      "amount": 1200000,
       "date": "2026-08-03",
       "mode": "RTGS",
       "refNo": "HDFCR52026080344",
@@ -350,7 +395,7 @@
       "mobile": "+91 98221 00112",
       "gstin": "27AAACU1234F1Z9",
       "location": "Pune & Kolhapur Depots",
-      "outstandingBalance": 420000
+      "outstandingBalance": 185000
     },
     {
       "id": "SUP-02",
@@ -360,7 +405,7 @@
       "mobile": "+91 98202 33445",
       "gstin": "27AAACT5678G2Z1",
       "location": "Mumbai & Pune Depot",
-      "outstandingBalance": 1150000
+      "outstandingBalance": 240000
     },
     {
       "id": "SUP-03",
@@ -370,7 +415,7 @@
       "mobile": "+91 98235 66778",
       "gstin": "27AABFW9012H1Z5",
       "location": "Regional Quarry Network",
-      "outstandingBalance": 185000
+      "outstandingBalance": 75000
     },
     {
       "id": "SUP-04",
@@ -380,7 +425,7 @@
       "mobile": "+91 98920 44332",
       "gstin": "27AACCP3456J1Z8",
       "location": "Maharashtra Central Stores",
-      "outstandingBalance": 290000
+      "outstandingBalance": 115000
     },
     {
       "id": "SUP-05",
@@ -390,7 +435,7 @@
       "mobile": "+91 98230 88990",
       "gstin": "27AADCV8901K1Z3",
       "location": "Multi-City Batching Plants",
-      "outstandingBalance": 340000
+      "outstandingBalance": 48000
     }
   ],
   "purchaseOrders": [
@@ -398,26 +443,72 @@
       "id": "PO-2026-089",
       "poNumber": "PO/SS/2026/089",
       "supplierId": "SUP-01",
-      "supplierName": "Cement Supplier",
+      "supplierName": "Cement Supplier Agreement PVT Ltd",
       "projectId": "PRJ-001",
       "projectName": "Shivshakti Commercial Tower",
-      "orderDate": "2026-08-04",
-      "expectedDelivery": "2026-08-06",
+      "orderDate": "2026-09-01",
+      "expectedDelivery": "2026-09-06",
       "items": [
         {
-          "name": "OPC 53 Grade Cement Bags",
-          "quantity": 600,
+          "id": "PO-2026-089-IT-1",
+          "name": "OPC 53 Grade Cement",
+          "materialName": "OPC 53 Grade Cement",
+          "quantity": 200,
           "unit": "Bags",
-          "rate": 380,
-          "amount": 228000
+          "rate": 450,
+          "ratePerUnit": 450,
+          "amount": 90000,
+          "totalAmount": 90000,
+          "deliveryStatus": "Delivered"
+        },
+        {
+          "id": "PO-2026-089-IT-2",
+          "name": "TMT Steel Bars (Primary)",
+          "materialName": "TMT Steel Bars (Primary)",
+          "quantity": 5,
+          "unit": "MT",
+          "rate": 55000,
+          "ratePerUnit": 55000,
+          "amount": 275000,
+          "totalAmount": 275000,
+          "deliveryStatus": "Delivered"
+        },
+        {
+          "id": "PO-2026-089-IT-3",
+          "name": "Washed M-Sand",
+          "materialName": "Washed M-Sand",
+          "quantity": 80,
+          "unit": "Brass",
+          "rate": 1500,
+          "ratePerUnit": 1500,
+          "amount": 120000,
+          "totalAmount": 120000,
+          "deliveryStatus": "Delivered"
+        },
+        {
+          "id": "PO-2026-089-IT-4",
+          "name": "Ready-Mix Concrete (M25)",
+          "materialName": "Ready-Mix Concrete (M25)",
+          "quantity": 50,
+          "unit": "Cum",
+          "rate": 850,
+          "ratePerUnit": 850,
+          "amount": 42500,
+          "totalAmount": 42500,
+          "deliveryStatus": "Delivered"
         }
       ],
-      "totalAmount": 228000,
+      "totalAmount": 527500,
+      "linkedBills": [
+        "BILL-2026-045",
+        "BILL-2026-046",
+        "BILL-2026-047"
+      ],
       "driverName": "Dnyaneshwar More",
       "driverMobile": "+91 97654 32109",
       "vehicleNumber": "MH 12 QG 4821 (10-Wheeler Dumper)",
       "deliveryStatus": "In-Transit",
-      "dispatchNotes": "Driver crossed Khed Toll Plaza at 3:15 PM. En route to site.",
+      "dispatchNotes": "Consignment 85% received at Kharadi site gate. Remaining 15 MT steel en route.",
       "partnerId": "P1"
     },
     {
@@ -431,14 +522,19 @@
       "expectedDelivery": "2026-08-05",
       "items": [
         {
+          "id": "PO-2026-090-IT-1",
           "name": "TMT Steel Bars 16mm Fe550D",
-          "quantity": 20,
-          "unit": "Tons",
+          "materialName": "TMT Steel Bars 16mm Fe550D",
+          "quantity": 5,
+          "unit": "MT",
           "rate": 58000,
-          "amount": 1160000
+          "ratePerUnit": 58000,
+          "amount": 290000,
+          "totalAmount": 290000,
+          "deliveryStatus": "In-Transit"
         }
       ],
-      "totalAmount": 1160000,
+      "totalAmount": 290000,
       "driverName": "Aslam Khan",
       "driverMobile": "+91 98199 87654",
       "vehicleNumber": "MH 04 FK 9920 (Trailer Truck)",
@@ -458,10 +554,15 @@
       "items": [
         {
           "name": "RMC Grade M30 Concrete",
+          "materialName": "RMC Grade M30 Concrete",
+          "description": "Transit mixer dispatched with retarder admixture for warehouse flooring",
           "quantity": 45,
           "unit": "Cu.m",
           "rate": 4200,
-          "amount": 189000
+          "ratePerUnit": 4200,
+          "amount": 189000,
+          "totalAmount": 189000,
+          "deliveryStatus": "Dispatched"
         }
       ],
       "totalAmount": 189000,
@@ -484,10 +585,15 @@
       "items": [
         {
           "name": "Crushed Metal 20mm Aggregate",
+          "materialName": "Crushed Metal 20mm Aggregate",
+          "description": "Graded basalt aggregate for bituminous road sub-base",
           "quantity": 80,
           "unit": "Brass",
           "rate": 3200,
-          "amount": 256000
+          "ratePerUnit": 3200,
+          "amount": 256000,
+          "totalAmount": 256000,
+          "deliveryStatus": "Verified"
         }
       ],
       "totalAmount": 256000,
@@ -510,10 +616,15 @@
       "items": [
         {
           "name": "PPC Grade Cement Bags",
+          "materialName": "PPC Grade Cement Bags",
+          "description": "Portland Pozzolana Cement in moisture-proof HDPE laminated bags",
           "quantity": 400,
           "unit": "Bags",
           "rate": 365,
-          "amount": 146000
+          "ratePerUnit": 365,
+          "amount": 146000,
+          "totalAmount": 146000,
+          "deliveryStatus": "In-Transit"
         }
       ],
       "totalAmount": 146000,
@@ -527,6 +638,51 @@
   ],
   "purchaseBills": [
     {
+      "id": "PB-BILL-045",
+      "billNumber": "BILL-2026-045",
+      "supplierId": "SUP-01",
+      "supplierName": "Cement Supplier Agreement PVT Ltd",
+      "poRef": "PO/SS/2026/089",
+      "billDate": "2026-09-05",
+      "baseAmount": 150000,
+      "gstAmount": 27000,
+      "totalBillAmount": 177000,
+      "billDescription": "Delivery of 200 bags OPC 53 Grade Cement (50kg bags)",
+      "approvalStatus": "Approved",
+      "paymentStatus": "Paid",
+      "partnerId": "P1"
+    },
+    {
+      "id": "PB-BILL-046",
+      "billNumber": "BILL-2026-046",
+      "supplierId": "SUP-02",
+      "supplierName": "Steel Consortium Ltd",
+      "poRef": "PO/SS/2026/089",
+      "billDate": "2026-09-12",
+      "baseAmount": 250000,
+      "gstAmount": 45000,
+      "totalBillAmount": 295000,
+      "billDescription": "Consignment of 20 MT TMT Steel Bars (8mm & 10mm dia)",
+      "approvalStatus": "Approved",
+      "paymentStatus": "Paid",
+      "partnerId": "P1"
+    },
+    {
+      "id": "PB-BILL-047",
+      "billNumber": "BILL-2026-047",
+      "supplierId": "SUP-03",
+      "supplierName": "Deccan Aggregates & RMC Co",
+      "poRef": "PO/SS/2026/089",
+      "billDate": "2026-09-15",
+      "baseAmount": 200000,
+      "gstAmount": 36000,
+      "totalBillAmount": 236000,
+      "billDescription": "Washed M-Sand 200 cum & M20 Ready-Mix Concrete 150 bags",
+      "approvalStatus": "Approved",
+      "paymentStatus": "Pending",
+      "partnerId": "P1"
+    },
+    {
       "id": "PB-401",
       "billNumber": "INV/CEM/8821",
       "supplierId": "SUP-01",
@@ -536,6 +692,7 @@
       "baseAmount": 228000,
       "gstAmount": 41040,
       "totalBillAmount": 269040,
+      "billDescription": "Bulk OPC 53 Grade Cement replenishment batch 1",
       "approvalStatus": "Approved",
       "paymentStatus": "Pending",
       "partnerId": "P1"
@@ -547,9 +704,10 @@
       "supplierName": "Steel / TMT Bar Supplier",
       "poRef": "PO/SS/2026/090",
       "billDate": "2026-08-04",
-      "baseAmount": 1160000,
-      "gstAmount": 208800,
-      "totalBillAmount": 1368800,
+      "baseAmount": 290000,
+      "gstAmount": 52200,
+      "totalBillAmount": 342200,
+      "billDescription": "20 Tons 16mm Fe550D primary high-rise reinforcement steel",
       "approvalStatus": "Approved",
       "paymentStatus": "Partially Paid",
       "partnerId": "P1"
@@ -564,6 +722,7 @@
       "baseAmount": 256000,
       "gstAmount": 12800,
       "totalBillAmount": 268800,
+      "billDescription": "Crushed metal 20mm basalt aggregate 80 Brass delivery",
       "approvalStatus": "Approved",
       "paymentStatus": "Paid",
       "partnerId": "P1"
@@ -578,6 +737,7 @@
       "baseAmount": 146000,
       "gstAmount": 26280,
       "totalBillAmount": 172280,
+      "billDescription": "PPC Grade Cement Bags 400 nos for Karveer site",
       "approvalStatus": "Approved",
       "paymentStatus": "Pending",
       "partnerId": "P1"
@@ -589,7 +749,7 @@
       "supplierId": "SUP-02",
       "supplierName": "Steel / TMT Bar Supplier",
       "billId": "PB-402",
-      "amountPaid": 500000,
+      "amountPaid": 200000,
       "paymentDate": "2026-08-05",
       "paymentMode": "RTGS",
       "bankRefNo": "SBI992026080512",
@@ -744,8 +904,8 @@
       "assetName": "Heavy Hydraulic Excavator 3DX",
       "category": "Heavy Machinery",
       "siteAssigned": "Shivshakti Commercial Tower",
-      "purchaseValue": 3800000,
-      "valuationCurrent": 2900000,
+      "purchaseValue": 1200000,
+      "valuationCurrent": 950000,
       "condition": "Excellent",
       "status": "Operational",
       "projectId": "PRJ-001",
@@ -757,8 +917,8 @@
       "assetName": "Heavy Concrete Pump (High Pressure)",
       "category": "Concrete Equipment",
       "siteAssigned": "Marine Drive Residency",
-      "purchaseValue": 2400000,
-      "valuationCurrent": 1800000,
+      "purchaseValue": 850000,
+      "valuationCurrent": 680000,
       "condition": "Good",
       "status": "Operational",
       "projectId": "PRJ-002",
@@ -770,8 +930,8 @@
       "assetName": "Tower Crane 50m",
       "category": "Lifting Equipment",
       "siteAssigned": "Marine Drive Residency",
-      "purchaseValue": 6500000,
-      "valuationCurrent": 5200000,
+      "purchaseValue": 1400000,
+      "valuationCurrent": 1150000,
       "condition": "Under Inspection",
       "status": "Operational",
       "projectId": "PRJ-002",
@@ -783,8 +943,8 @@
       "assetName": "MSRDC Tender Security EMD Deposit",
       "category": "Earnest Money Deposit (EMD)",
       "siteAssigned": "Pune Highway Expansion Site",
-      "purchaseValue": 1500000,
-      "valuationCurrent": 1500000,
+      "purchaseValue": 150000,
+      "valuationCurrent": 150000,
       "condition": "Fixed Deposit Locked",
       "status": "Active Security Deposit",
       "projectId": "PRJ-004",
@@ -796,8 +956,8 @@
       "assetName": "Worli Power Substation Connection Security",
       "category": "Utility Deposit",
       "siteAssigned": "Marine Drive Residency",
-      "purchaseValue": 450000,
-      "valuationCurrent": 450000,
+      "purchaseValue": 85000,
+      "valuationCurrent": 85000,
       "condition": "Refundable Post Construction",
       "status": "Active Security Deposit",
       "projectId": "PRJ-002",
@@ -812,12 +972,14 @@
       "workType": "Plumbing & Piping",
       "projectId": "PRJ-001",
       "projectName": "Shivshakti Commercial Tower",
-      "contractValue": 3200000,
+      "contractValue": 320000,
       "completionPercent": 70,
-      "totalBilled": 2240000,
-      "totalPaid": 1800000,
-      "pendingBalance": 440000,
-      "partnerId": "P1"
+      "totalBilled": 320000,
+      "totalPaid": 180000,
+      "pendingBalance": 140000,
+      "partnerId": "P1",
+      "paidAmount": 180000,
+      "pendingAmount": 140000
     },
     {
       "id": "SUB-02",
@@ -825,12 +987,14 @@
       "workType": "High Voltage Wiring & Panel",
       "projectId": "PRJ-002",
       "projectName": "Marine Drive Residency",
-      "contractValue": 5800000,
+      "contractValue": 480000,
       "completionPercent": 55,
-      "totalBilled": 3190000,
-      "totalPaid": 2700000,
-      "pendingBalance": 490000,
-      "partnerId": "P2"
+      "totalBilled": 480000,
+      "totalPaid": 250000,
+      "pendingBalance": 230000,
+      "partnerId": "P2",
+      "paidAmount": 250000,
+      "pendingAmount": 230000
     },
     {
       "id": "SUB-03",
@@ -838,12 +1002,14 @@
       "workType": "Internal & External Plaster",
       "projectId": "PRJ-003",
       "projectName": "Nagpur Logistics Hub",
-      "contractValue": 1800000,
+      "contractValue": 280000,
       "completionPercent": 40,
-      "totalBilled": 720000,
-      "totalPaid": 600000,
-      "pendingBalance": 120000,
-      "partnerId": "P3"
+      "totalBilled": 280000,
+      "totalPaid": 120000,
+      "pendingBalance": 160000,
+      "partnerId": "P3",
+      "paidAmount": 120000,
+      "pendingAmount": 160000
     },
     {
       "id": "SUB-04",
@@ -851,12 +1017,14 @@
       "workType": "Structural Steel & Trusses",
       "projectId": "PRJ-KOL-02",
       "projectName": "Karveer Commercial Complex",
-      "contractValue": 2400000,
+      "contractValue": 350000,
       "completionPercent": 65,
-      "totalBilled": 1560000,
-      "totalPaid": 1300000,
-      "pendingBalance": 260000,
-      "partnerId": "P1"
+      "totalBilled": 350000,
+      "totalPaid": 200000,
+      "pendingBalance": 150000,
+      "partnerId": "P1",
+      "paidAmount": 200000,
+      "pendingAmount": 150000
     },
     {
       "id": "SUB-05",
@@ -864,12 +1032,14 @@
       "workType": "Centering & Formwork",
       "projectId": "PRJ-KOL-01",
       "projectName": "Ichalkaranji Industrial Complex",
-      "contractValue": 1900000,
+      "contractValue": 240000,
       "completionPercent": 60,
-      "totalBilled": 1140000,
-      "totalPaid": 950000,
-      "pendingBalance": 190000,
-      "partnerId": "P1"
+      "totalBilled": 240000,
+      "totalPaid": 120000,
+      "pendingBalance": 120000,
+      "partnerId": "P1",
+      "paidAmount": 120000,
+      "pendingAmount": 120000
     }
   ],
   "otherExpenses": [
@@ -932,6 +1102,447 @@
       "paidBy": "Rajesh Patel",
       "receiptNo": "PET-ICH-881",
       "partnerId": "P1"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "LOG-42234",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "DEACTIVATE_USER",
+      "module": "USER_MANAGEMENT",
+      "details": "Deactivated account for yash@gmail.com",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T10:12:22.234Z"
+    },
+    {
+      "id": "LOG-30619",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: ADMIN)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T10:12:10.619Z"
+    },
+    {
+      "id": "LOG-54486",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGOUT",
+      "module": "AUTH",
+      "details": "User logged out and session token invalidated",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T10:10:54.486Z"
+    },
+    {
+      "id": "LOG-67580",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: PARTNER)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T09:36:07.580Z"
+    },
+    {
+      "id": "LOG-74023",
+      "userId": "USR-02",
+      "userName": "Suresh Sharma",
+      "userRole": "PARTNER",
+      "action": "LOGOUT",
+      "module": "AUTH",
+      "details": "User logged out and session token invalidated",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T09:34:34.023Z"
+    },
+    {
+      "id": "LOG-70958",
+      "userId": "USR-02",
+      "userName": "Suresh Sharma",
+      "userRole": "PARTNER",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: PARTNER)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T09:34:30.958Z"
+    },
+    {
+      "id": "LOG-57886",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGOUT",
+      "module": "AUTH",
+      "details": "User logged out and session token invalidated",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T09:34:17.886Z"
+    },
+    {
+      "id": "LOG-44370",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: PARTNER)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T09:34:04.370Z"
+    },
+    {
+      "id": "LOG-18988",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGIN_FAILURE",
+      "module": "AUTH",
+      "details": "Incorrect password provided",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T09:33:38.988Z"
+    },
+    {
+      "id": "LOG-15841",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGIN_FAILURE",
+      "module": "AUTH",
+      "details": "Incorrect password provided",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-08T09:33:35.841Z"
+    },
+    {
+      "id": "LOG-45546",
+      "userId": "USR-4054",
+      "userName": "Yashraj Hasabe",
+      "userRole": "PARTNER",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: PARTNER)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:07:25.546Z"
+    },
+    {
+      "id": "LOG-26857",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "LOGOUT",
+      "module": "AUTH",
+      "details": "User logged out and session token invalidated",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:07:06.857Z"
+    },
+    {
+      "id": "LOG-21519",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "ACTIVATE_USER",
+      "module": "USER_MANAGEMENT",
+      "details": "Activated account for driver@shivshakti.com",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:07:01.519Z"
+    },
+    {
+      "id": "LOG-19788",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "ACTIVATE_USER",
+      "module": "USER_MANAGEMENT",
+      "details": "Activated account for yash@gmail.com",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:06:59.788Z"
+    },
+    {
+      "id": "LOG-14022",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "DEACTIVATE_USER",
+      "module": "USER_MANAGEMENT",
+      "details": "Deactivated account for driver@shivshakti.com",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:06:54.022Z"
+    },
+    {
+      "id": "LOG-01997",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "DEACTIVATE_USER",
+      "module": "USER_MANAGEMENT",
+      "details": "Deactivated account for yash@gmail.com",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:06:41.997Z"
+    },
+    {
+      "id": "LOG-74063",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "CREATE_USER",
+      "module": "USER_MANAGEMENT",
+      "details": "Created new user yash@gmail.com with role PARTNER",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:06:14.063Z"
+    },
+    {
+      "id": "LOG-30576",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: ADMIN)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:03:50.576Z"
+    },
+    {
+      "id": "LOG-10385",
+      "userId": "USR-04",
+      "userName": "Anand Verma",
+      "userRole": "CLIENT",
+      "action": "LOGOUT",
+      "module": "AUTH",
+      "details": "User logged out and session token invalidated",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:03:30.385Z"
+    },
+    {
+      "id": "LOG-92166",
+      "userId": "USR-04",
+      "userName": "Anand Verma",
+      "userRole": "CLIENT",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: CLIENT)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:03:12.166Z"
+    },
+    {
+      "id": "LOG-45037",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGOUT",
+      "module": "AUTH",
+      "details": "User logged out and session token invalidated",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T19:02:25.037Z"
+    },
+    {
+      "id": "LOG-96162",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: PARTNER)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T18:59:56.162Z"
+    },
+    {
+      "id": "LOG-81310",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "LOGOUT",
+      "module": "AUTH",
+      "details": "User logged out and session token invalidated",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T18:58:01.310Z"
+    },
+    {
+      "id": "LOG-33978",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: ADMIN)",
+      "ipAddress": "::1",
+      "createdAt": "2026-10-07T18:57:13.978Z"
+    },
+    {
+      "id": "LOG-87248",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: PARTNER)",
+      "ipAddress": "::ffff:127.0.0.1",
+      "createdAt": "2026-10-07T18:49:47.248Z"
+    },
+    {
+      "id": "LOG-87075",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGOUT",
+      "module": "AUTH",
+      "details": "User logged out and session token invalidated",
+      "ipAddress": "::ffff:127.0.0.1",
+      "createdAt": "2026-10-07T18:49:47.075Z"
+    },
+    {
+      "id": "LOG-87056",
+      "userId": "USR-05",
+      "userName": "Dnyaneshwar More",
+      "userRole": "WORKER",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: WORKER)",
+      "ipAddress": "::ffff:127.0.0.1",
+      "createdAt": "2026-10-07T18:49:47.056Z"
+    },
+    {
+      "id": "LOG-86858",
+      "userId": "USR-04",
+      "userName": "Anand Verma",
+      "userRole": "CLIENT",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: CLIENT)",
+      "ipAddress": "::ffff:127.0.0.1",
+      "createdAt": "2026-10-07T18:49:46.858Z"
+    },
+    {
+      "id": "LOG-86692",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: ADMIN)",
+      "ipAddress": "::ffff:127.0.0.1",
+      "createdAt": "2026-10-07T18:49:46.692Z"
+    },
+    {
+      "id": "LOG-86504",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGIN_SUCCESS",
+      "module": "AUTH",
+      "details": "User logged in successfully (Role: PARTNER)",
+      "ipAddress": "::ffff:127.0.0.1",
+      "createdAt": "2026-10-07T18:49:46.504Z"
+    },
+    {
+      "id": "LOG-86299",
+      "userId": "ANONYMOUS",
+      "userName": "ghost@shivshakti.com",
+      "userRole": "UNKNOWN",
+      "action": "LOGIN_FAILURE",
+      "module": "AUTH",
+      "details": "Failed login attempt for non-existent email: ghost@shivshakti.com",
+      "ipAddress": "::ffff:127.0.0.1",
+      "createdAt": "2026-10-07T18:49:46.299Z"
+    },
+    {
+      "id": "LOG-86290",
+      "userId": "USR-01",
+      "userName": "Rajesh Patel",
+      "userRole": "PARTNER",
+      "action": "LOGIN_FAILURE",
+      "module": "AUTH",
+      "details": "Incorrect password provided",
+      "ipAddress": "::ffff:127.0.0.1",
+      "createdAt": "2026-10-07T18:49:46.290Z"
+    },
+    {
+      "id": "LOG-001",
+      "userId": "USR-00",
+      "userName": "Super Admin",
+      "userRole": "ADMIN",
+      "action": "SYSTEM_BOOTSTRAP",
+      "module": "AUTH",
+      "details": "Initialized secure ERP environment with bcrypt credentials and RBAC",
+      "ipAddress": "127.0.0.1",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "NOTIF-001",
+      "userId": "USR-01",
+      "role": "PARTNER",
+      "title": "Material Dispatched",
+      "message": "Ultratech Cement delivery in-transit to Hinjewadi site (PRJ-001)",
+      "type": "INFO",
+      "read": false,
+      "createdAt": "2026-10-07T18:04:57.850Z"
+    },
+    {
+      "id": "NOTIF-002",
+      "userId": "USR-00",
+      "role": "ADMIN",
+      "title": "Security System Active",
+      "message": "RBAC and JWT authentication enforced across all endpoints",
+      "type": "SUCCESS",
+      "read": false,
+      "createdAt": "2026-10-07T18:04:57.900Z"
+    }
+  ],
+  "workerTasks": [
+    {
+      "id": "TSK-001",
+      "workerId": "USR-05",
+      "workerName": "Dnyaneshwar More",
+      "projectId": "PRJ-001",
+      "projectName": "Shivshakti Commercial Tower",
+      "title": "Dispatch Material Cargo to Talegaon Gate",
+      "description": "Transport 400 bags OPC 53 Grade cement to Pune Site Gate 2",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "dueDate": "2026-10-07",
+      "createdAt": "2026-10-07T18:04:57.900Z"
+    },
+    {
+      "id": "TSK-002",
+      "workerId": "USR-05",
+      "workerName": "Dnyaneshwar More",
+      "projectId": "PRJ-001",
+      "projectName": "Shivshakti Commercial Tower",
+      "title": "Check vehicle engine oil and tyre pressure",
+      "description": "Complete pre-transit vehicle maintenance check for MH 12 QG 4821",
+      "priority": "NORMAL",
+      "status": "COMPLETED",
+      "dueDate": "2026-10-07",
+      "createdAt": "2026-10-07T18:04:57.900Z"
+    }
+  ],
+  "clientQueries": [
+    {
+      "id": "QRY-001",
+      "clientId": "CL-01",
+      "clientName": "Apex Infrastructures Ltd",
+      "projectId": "PRJ-001",
+      "projectName": "Shivshakti Commercial Tower",
+      "subject": "Milestone 4 Inspection Schedule",
+      "message": "Requesting confirmation for the structural inspection of the 8th slab.",
+      "status": "ANSWERED",
+      "reply": "Inspection scheduled for Friday at 11:00 AM with Partner Rajesh Patel.",
+      "createdAt": "2026-10-07T18:04:57.900Z"
+    }
+  ],
+  "workerAttendance": [
+    {
+      "id": "ATT-001",
+      "workerId": "USR-05",
+      "workerName": "Dnyaneshwar More",
+      "projectId": "PRJ-001",
+      "projectName": "Shivshakti Commercial Tower",
+      "date": "2026-10-07",
+      "punchInTime": "08:30 AM",
+      "status": "PRESENT"
     }
   ]
 }

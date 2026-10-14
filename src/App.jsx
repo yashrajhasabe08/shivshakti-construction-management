@@ -18,8 +18,14 @@ import AssetsView from './components/AssetsView';
 import SubcontractorsView from './components/SubcontractorsView';
 import ExpensesView from './components/ExpensesView';
 import ReportsView from './components/ReportsView';
+import SettingsView from './components/SettingsView';
 import GenericModal from './components/GenericModal';
 import LoginView from './components/LoginView';
+
+// Admin Data Management Views
+import UsersView from './components/UsersView';
+import PartnersView from './components/PartnersView';
+import AuditLogsView from './components/AuditLogsView';
 
 import { api, getStoredData } from './services/api';
 
@@ -36,6 +42,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState(getStoredData());
   const [activeModal, setActiveModal] = useState(null);
+  const [activeEditItem, setActiveEditItem] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
   useEffect(() => {
@@ -73,6 +80,14 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const handleRefreshData = async () => {
+    const dbData = await api.getData();
+    if (dbData) {
+      setData(dbData);
+      showToast('Live database metrics refreshed.');
+    }
+  };
+
   const handleUpdateStatus = async (poId, status, notes) => {
     const updatedData = await api.updateDeliveryStatus(poId, status, notes);
     setData(updatedData);
@@ -82,13 +97,25 @@ export default function App() {
   const handleSaveItem = async (moduleName, item) => {
     const updatedData = await api.updateItem(moduleName, item);
     setData(updatedData);
-    showToast(`New record saved to ${moduleName}!`);
+    showToast(`Record ${activeEditItem ? 'updated in' : 'saved to'} ${moduleName}!`);
+    setActiveEditItem(null);
+    setActiveModal(null);
   };
 
   const handleDeleteItem = async (moduleName, itemId) => {
     const updatedData = await api.deleteItem(moduleName, itemId);
     setData(updatedData);
     showToast(`Record deleted from ${moduleName}!`);
+  };
+
+  const handleAddNewItem = (moduleName) => {
+    setActiveEditItem(null);
+    setActiveModal(moduleName);
+  };
+
+  const handleEditItem = (moduleName, item) => {
+    setActiveEditItem(item);
+    setActiveModal(moduleName);
   };
 
   const pendingDeliveriesCount = (data?.purchaseOrders || []).filter(
@@ -158,7 +185,9 @@ export default function App() {
           <DashboardView
             data={data}
             selectedPartner={selectedPartner}
+            currentUser={currentUser}
             onNavigateTo={(tab) => setActiveTab(tab)}
+            onRetry={handleRefreshData}
           />
         );
 
@@ -177,17 +206,36 @@ export default function App() {
             data={data}
             selectedPartner={selectedPartner}
             onSaveProject={(project) => handleSaveItem('projects', project)}
+            onEditProject={(project) => handleEditItem('projects', project)}
             onDeleteProject={(projectId) => handleDeleteItem('projects', projectId)}
             onSaveExpense={(expense) => handleSaveItem('otherExpenses', expense)}
             onDeleteExpense={(source, id) => handleDeleteItem(source || 'otherExpenses', id)}
           />
         );
 
+      // Admin Direct Management Views
+      case 'users':
+        return <UsersView currentUser={currentUser} />;
+
+      case 'partners':
+        return (
+          <PartnersView
+            data={data}
+            onAddNew={handleAddNewItem}
+            onEdit={(partner) => handleEditItem('partners', partner)}
+            onDelete={(id) => handleDeleteItem('partners', id)}
+          />
+        );
+
+      case 'auditLogs':
+        return <AuditLogsView />;
+
       case 'clients':
         return (
           <ClientsView
             data={data}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(client) => handleEditItem('clients', client)}
             onDelete={(id) => handleDeleteItem('clients', id)}
           />
         );
@@ -196,7 +244,8 @@ export default function App() {
         return (
           <ClientPaymentsView
             data={data}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(item) => handleEditItem('clientPayments', item)}
             onDelete={(id) => handleDeleteItem('clientPayments', id)}
           />
         );
@@ -205,7 +254,8 @@ export default function App() {
         return (
           <SuppliersView
             data={data}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(supplier) => handleEditItem('suppliers', supplier)}
             onDelete={(id) => handleDeleteItem('suppliers', id)}
           />
         );
@@ -215,9 +265,11 @@ export default function App() {
           <PurchaseOrdersView
             data={data}
             selectedPartner={selectedPartner}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(po) => handleEditItem('purchaseOrders', po)}
             onDelete={(id) => handleDeleteItem('purchaseOrders', id)}
             onNavigateTo={(tab) => setActiveTab(tab)}
+            onSaveItem={handleSaveItem}
           />
         );
 
@@ -225,7 +277,8 @@ export default function App() {
         return (
           <PurchaseBillsView
             data={data}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(bill) => handleEditItem('purchaseBills', bill)}
             onDelete={(id) => handleDeleteItem('purchaseBills', id)}
           />
         );
@@ -234,7 +287,8 @@ export default function App() {
         return (
           <PurchasePaymentsView
             data={data}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(payment) => handleEditItem('purchasePayments', payment)}
             onDelete={(id) => handleDeleteItem('purchasePayments', id)}
           />
         );
@@ -244,7 +298,8 @@ export default function App() {
           <LabourWagesView
             data={data}
             selectedPartner={selectedPartner}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(wage) => handleEditItem('labourWages', wage)}
             onDelete={(id) => handleDeleteItem('labourWages', id)}
           />
         );
@@ -253,7 +308,8 @@ export default function App() {
         return (
           <AssetsView
             data={data}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(asset) => handleEditItem('assetsAndDeposits', asset)}
             onDelete={(id) => handleDeleteItem('assetsAndDeposits', id)}
           />
         );
@@ -262,7 +318,8 @@ export default function App() {
         return (
           <SubcontractorsView
             data={data}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(sub) => handleEditItem('subcontractors', sub)}
             onDelete={(id) => handleDeleteItem('subcontractors', id)}
           />
         );
@@ -272,7 +329,8 @@ export default function App() {
           <ExpensesView
             data={data}
             selectedPartner={selectedPartner}
-            onAddNew={(mod) => setActiveModal(mod)}
+            onAddNew={handleAddNewItem}
+            onEdit={(exp) => handleEditItem('otherExpenses', exp)}
             onDelete={(id) => handleDeleteItem('otherExpenses', id)}
           />
         );
@@ -280,8 +338,19 @@ export default function App() {
       case 'reports':
         return <ReportsView data={data} />;
 
+      case 'settings':
+        return <SettingsView currentUser={currentUser} />;
+
       default:
-        return <DashboardView data={data} selectedPartner={selectedPartner} onNavigateTo={setActiveTab} />;
+        return (
+          <DashboardView 
+            data={data} 
+            selectedPartner={selectedPartner} 
+            currentUser={currentUser}
+            onNavigateTo={setActiveTab} 
+            onRetry={handleRefreshData}
+          />
+        );
     }
   };
 
@@ -303,6 +372,7 @@ export default function App() {
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          currentUser={currentUser}
           counts={{
             pendingDeliveries: pendingDeliveriesCount,
             projects: data.projects?.length || 0,
@@ -318,7 +388,11 @@ export default function App() {
       {activeModal && (
         <GenericModal
           moduleName={activeModal}
-          onClose={() => setActiveModal(null)}
+          editItem={activeEditItem}
+          onClose={() => {
+            setActiveModal(null);
+            setActiveEditItem(null);
+          }}
           onSave={handleSaveItem}
           projects={data.projects}
           suppliers={data.suppliers}

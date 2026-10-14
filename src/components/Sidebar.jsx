@@ -13,13 +13,37 @@ import {
   DollarSign, 
   Briefcase, 
   BarChart3,
-  MapPin
+  MapPin,
+  Settings,
+  ShieldCheck,
+  Award
 } from 'lucide-react';
+import { MODULE_DESCRIPTIONS } from '../data/moduleDescriptions';
 
-export default function Sidebar({ activeTab, setActiveTab, counts }) {
+export default function Sidebar({ activeTab, setActiveTab, counts = {}, currentUser = null }) {
+  const isAdmin = currentUser?.role === 'ADMIN';
+
   const menuItems = [
-    { id: 'dashboard', label: 'Partner Dashboard', icon: LayoutDashboard, category: 'OVERVIEW' },
-    { id: 'deliveryTracker', label: 'Driver & Delivery Tracker', icon: Truck, category: 'LIVE TRACKING', highlight: true, count: counts.pendingDeliveries },
+    { 
+      id: 'dashboard', 
+      label: isAdmin ? 'Executive Admin Dashboard' : 'Partner Dashboard', 
+      icon: LayoutDashboard, 
+      category: 'OVERVIEW' 
+    },
+    { 
+      id: 'deliveryTracker', 
+      label: 'Driver & Delivery Tracker', 
+      icon: Truck, 
+      category: 'LIVE TRACKING', 
+      highlight: true, 
+      count: counts.pendingDeliveries 
+    },
+
+    ...(isAdmin ? [
+      { id: 'users', label: 'Users & Roles', icon: ShieldCheck, category: 'ADMINISTRATION' },
+      { id: 'partners', label: 'Partners & Capital', icon: Award, category: 'ADMINISTRATION' },
+      { id: 'auditLogs', label: 'Audit Trails & Logs', icon: FileText, category: 'ADMINISTRATION' },
+    ] : []),
     
     { id: 'projects', label: 'Projects & Sites', icon: Building, category: 'PROJECT MANAGEMENT', count: counts.projects },
     { id: 'clients', label: 'Client Directory', icon: Users, category: 'PROJECT MANAGEMENT' },
@@ -36,10 +60,22 @@ export default function Sidebar({ activeTab, setActiveTab, counts }) {
     { id: 'otherExpenses', label: 'Other Site Expenses', icon: DollarSign, category: 'SITE OPERATIONS' },
     
     { id: 'reports', label: 'Reports & Excel Hub', icon: BarChart3, category: 'FINANCE & REPORTS' },
+    { id: 'settings', label: 'System Settings', icon: Settings, category: 'SYSTEM CONFIG' },
   ];
 
-  // Group items by category
-  const categories = Array.from(new Set(menuItems.map(item => item.category)));
+  // Group items by category maintaining logical order
+  const categoryOrder = [
+    'OVERVIEW',
+    'LIVE TRACKING',
+    ...(isAdmin ? ['ADMINISTRATION'] : []),
+    'PROJECT MANAGEMENT',
+    'PURCHASE & MATERIALS',
+    'SITE OPERATIONS',
+    'FINANCE & REPORTS',
+    'SYSTEM CONFIG'
+  ];
+
+  const categories = categoryOrder.filter(cat => menuItems.some(item => item.category === cat));
 
   return (
     <aside className="w-64 bg-white border-r border-[#E5E7EB] flex flex-col shrink-0 min-h-[calc(100vh-57px)] select-none">
@@ -60,6 +96,7 @@ export default function Sidebar({ activeTab, setActiveTab, counts }) {
                     <button
                       key={item.id}
                       onClick={() => setActiveTab(item.id)}
+                      title={MODULE_DESCRIPTIONS[item.id]?.fullDescription || item.label}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors ${
                         isActive
                           ? 'bg-blue-50 text-[#2563EB] font-semibold'
@@ -86,8 +123,13 @@ export default function Sidebar({ activeTab, setActiveTab, counts }) {
       </div>
 
       {/* Footer Info Box */}
-      <div className="p-3.5 border-t border-[#E5E7EB]/80">
-        <p className="text-[11px] text-slate-400 font-normal">Shivshakti Head Office: Pune, MH</p>
+      <div className="p-3.5 border-t border-[#E5E7EB]/80 flex items-center justify-between">
+        <p className="text-[11px] text-slate-400 font-normal">Head Office: Pune, MH</p>
+        {isAdmin && (
+          <span className="badge badge-info text-[9px] font-mono uppercase tracking-wider py-0.5">
+            Admin Mode
+          </span>
+        )}
       </div>
     </aside>
   );
