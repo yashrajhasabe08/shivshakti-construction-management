@@ -40,6 +40,23 @@ export const getAuthUser = () => {
   }
 };
 
+// Base API URL configuration for production deployment (e.g. Render backend)
+// When VITE_API_URL is unset or empty, it defaults to '' preserving local Vite proxying
+const RAW_API_BASE = (import.meta.env.VITE_API_URL || '').trim();
+const API_BASE = RAW_API_BASE.replace(/\/+$/, '');
+
+export const apiUrl = (endpoint) => {
+  if (!API_BASE) {
+    return endpoint;
+  }
+  let path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  // Avoid duplicating /api if VITE_API_URL already contains /api
+  if (API_BASE.endsWith('/api') && path.startsWith('/api/')) {
+    path = path.slice(4);
+  }
+  return `${API_BASE}${path}`;
+};
+
 const getAuthHeaders = () => {
   const token = getAuthToken();
   const headers = { 'Content-Type': 'application/json' };
@@ -55,7 +72,7 @@ export const api = {
   getAuthToken,
 
   async login(email, password) {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(apiUrl('/api/auth/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -75,7 +92,7 @@ export const api = {
 
   async logout() {
     try {
-      await fetch('/api/auth/logout', { method: 'POST', headers: getAuthHeaders() });
+      await fetch(apiUrl('/api/auth/logout'), { method: 'POST', headers: getAuthHeaders() });
     } catch (e) {
       // offline logout fallback
     }
@@ -88,7 +105,7 @@ export const api = {
     if (!token) return null;
 
     try {
-      const res = await fetch('/api/auth/me', { headers: getAuthHeaders() });
+      const res = await fetch(apiUrl('/api/auth/me'), { headers: getAuthHeaders() });
       if (res.ok) {
         const user = await res.json();
         localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -104,7 +121,7 @@ export const api = {
   },
 
   async changePassword(currentPassword, newPassword) {
-    const res = await fetch('/api/auth/change-password', {
+    const res = await fetch(apiUrl('/api/auth/change-password'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ currentPassword, newPassword }),
@@ -118,7 +135,7 @@ export const api = {
   async getUsers(filters = {}) {
     try {
       const params = new URLSearchParams(filters).toString();
-      const res = await fetch(`/api/admin/users?${params}`, { headers: getAuthHeaders() });
+      const res = await fetch(apiUrl(`/api/admin/users?${params}`), { headers: getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('Failed to fetch admin users from server:', e);
@@ -128,7 +145,7 @@ export const api = {
   },
 
   async createUser(userData) {
-    const res = await fetch('/api/admin/users', {
+    const res = await fetch(apiUrl('/api/admin/users'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(userData),
@@ -139,7 +156,7 @@ export const api = {
   },
 
   async updateUser(userId, userData) {
-    const res = await fetch(`/api/admin/users/${userId}`, {
+    const res = await fetch(apiUrl(`/api/admin/users/${userId}`), {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(userData),
@@ -150,7 +167,7 @@ export const api = {
   },
 
   async toggleUserStatus(userId, status) {
-    const res = await fetch(`/api/admin/users/${userId}/status`, {
+    const res = await fetch(apiUrl(`/api/admin/users/${userId}/status`), {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify({ status }),
@@ -161,7 +178,7 @@ export const api = {
   },
 
   async resetUserPassword(userId, newPassword) {
-    const res = await fetch(`/api/admin/users/${userId}/reset-password`, {
+    const res = await fetch(apiUrl(`/api/admin/users/${userId}/reset-password`), {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify({ newPassword }),
@@ -172,7 +189,7 @@ export const api = {
   },
 
   async deleteUser(userId) {
-    const res = await fetch(`/api/admin/users/${userId}`, {
+    const res = await fetch(apiUrl(`/api/admin/users/${userId}`), {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
@@ -183,7 +200,7 @@ export const api = {
 
   async getAuditLogs() {
     try {
-      const res = await fetch('/api/admin/audit-logs', { headers: getAuthHeaders() });
+      const res = await fetch(apiUrl('/api/admin/audit-logs'), { headers: getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('Failed to fetch audit logs from backend:', e);
@@ -195,7 +212,7 @@ export const api = {
   // Client Portal Services
   async getClientPortalData() {
     try {
-      const res = await fetch('/api/client/portal-data', { headers: getAuthHeaders() });
+      const res = await fetch(apiUrl('/api/client/portal-data'), { headers: getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('Using client fallback for portal data:', e);
@@ -204,7 +221,7 @@ export const api = {
   },
 
   async submitClientQuery(queryData) {
-    const res = await fetch('/api/client/query', {
+    const res = await fetch(apiUrl('/api/client/query'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(queryData),
@@ -215,7 +232,7 @@ export const api = {
   },
 
   async notifyClientPayment(paymentData) {
-    const res = await fetch('/api/client/notify-payment', {
+    const res = await fetch(apiUrl('/api/client/notify-payment'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(paymentData),
@@ -228,7 +245,7 @@ export const api = {
   // Worker Portal Services
   async getWorkerPortalData() {
     try {
-      const res = await fetch('/api/worker/portal-data', { headers: getAuthHeaders() });
+      const res = await fetch(apiUrl('/api/worker/portal-data'), { headers: getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('Using worker fallback for portal data:', e);
@@ -237,7 +254,7 @@ export const api = {
   },
 
   async updateWorkerTaskStatus(taskId, status) {
-    const res = await fetch(`/api/worker/tasks/${taskId}/status`, {
+    const res = await fetch(apiUrl(`/api/worker/tasks/${taskId}/status`), {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify({ status }),
@@ -248,7 +265,7 @@ export const api = {
   },
 
   async punchWorkerAttendance() {
-    const res = await fetch('/api/worker/attendance', {
+    const res = await fetch(apiUrl('/api/worker/attendance'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({}),
@@ -259,7 +276,7 @@ export const api = {
   },
 
   async submitWorkerSiteUpdate(updateData) {
-    const res = await fetch('/api/worker/site-update', {
+    const res = await fetch(apiUrl('/api/worker/site-update'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(updateData),
@@ -270,7 +287,7 @@ export const api = {
   },
 
   async updateWorkerDeliveryStatus(poId, status, notes) {
-    const res = await fetch('/api/worker/delivery-status', {
+    const res = await fetch(apiUrl('/api/worker/delivery-status'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ poId, status, notes }),
@@ -283,7 +300,7 @@ export const api = {
   // Notification Services
   async getNotifications() {
     try {
-      const res = await fetch('/api/notifications', { headers: getAuthHeaders() });
+      const res = await fetch(apiUrl('/api/notifications'), { headers: getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {
       // fallback
@@ -293,7 +310,7 @@ export const api = {
 
   async markNotificationRead(id) {
     try {
-      await fetch(`/api/notifications/${id}/read`, {
+      await fetch(apiUrl(`/api/notifications/${id}/read`), {
         method: 'PATCH',
         headers: getAuthHeaders(),
       });
@@ -304,7 +321,7 @@ export const api = {
 
   async checkDataIntegrity() {
     try {
-      const res = await fetch('/api/validation/check', { headers: getAuthHeaders() });
+      const res = await fetch(apiUrl('/api/validation/check'), { headers: getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn("Validation endpoint error:", e);
@@ -314,7 +331,7 @@ export const api = {
 
   async getData() {
     try {
-      const res = await fetch('/api/data', { headers: getAuthHeaders() });
+      const res = await fetch(apiUrl('/api/data'), { headers: getAuthHeaders() });
       if (res.ok) {
         const data = await res.json();
         saveStoredData(data);
@@ -327,7 +344,7 @@ export const api = {
   },
 
   async updateItem(moduleName, item) {
-    const res = await fetch(`/api/${moduleName}`, {
+    const res = await fetch(apiUrl(`/api/${moduleName}`), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(item),
@@ -356,7 +373,7 @@ export const api = {
   },
 
   async deleteItem(moduleName, itemId) {
-    const res = await fetch(`/api/${moduleName}/${itemId}`, {
+    const res = await fetch(apiUrl(`/api/${moduleName}/${itemId}`), {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -392,7 +409,7 @@ export const api = {
     saveStoredData(newData);
 
     try {
-      await fetch(`/api/purchaseOrders/${poId}`, {
+      await fetch(apiUrl(`/api/purchaseOrders/${poId}`), {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ deliveryStatus: status, dispatchNotes: notes }),

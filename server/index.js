@@ -43,23 +43,52 @@ app.use((req, res, next) => {
   next();
 });
 
-// Phase 10: Restricted CORS
-const allowedOrigins = [
+// Phase 10: Production CORS Hardening
+const devOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:5173',
   'http://127.0.0.1:5173'
 ];
 
+const parseFrontendOrigins = () => {
+  const envUrl = process.env.FRONTEND_URL || '';
+  return envUrl
+    .split(',')
+    .map(url => url.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+};
+
+const isAllowedOrigin = (origin) => {
+  // Allow requests with no origin (e.g. server-to-server, health check probes, curl)
+  if (!origin) return true;
+
+  // Local development origins
+  if (devOrigins.includes(origin)) return true;
+
+  // Configured production frontend origin(s) from FRONTEND_URL
+  const configuredOrigins = parseFrontendOrigins();
+  if (configuredOrigins.includes(origin)) return true;
+
+  // Approved Vercel production and preview deployment domains
+  if (/^https:\/\/[a-zA-Z0-9._-]+\.vercel\.app$/.test(origin)) {
+    return true;
+  }
+
+  return false;
+};
+
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
     } else {
-      callback(null, true); // Fallback for local development network addresses
+      callback(new Error(`Blocked by CORS policy: Origin ${origin} is not allowed`));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 app.use(express.json({ limit: '10mb' }));
@@ -1053,6 +1082,9 @@ app.delete('/api/:moduleName/:id', authenticateToken, requireRole(['ADMIN', 'PAR
 
 // Global Safe Error Handler
 app.use((err, req, res, next) => {
+  if (err.message && err.message.startsWith('Blocked by CORS policy')) {
+    return res.status(403).json({ error: err.message });
+  }
   console.error('Unhandled server error:', err.message);
   res.status(500).json({ error: 'An unexpected internal server error occurred.' });
 });
