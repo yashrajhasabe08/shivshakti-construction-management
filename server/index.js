@@ -70,6 +70,11 @@ const isAllowedOrigin = (origin) => {
   const configuredOrigins = parseFrontendOrigins();
   if (configuredOrigins.includes(origin)) return true;
 
+  // Approved Render production and preview deployment domains
+  if (/^https:\/\/[a-zA-Z0-9._-]+\.onrender\.com$/.test(origin)) {
+    return true;
+  }
+
   // Approved Vercel production and preview deployment domains
   if (/^https:\/\/[a-zA-Z0-9._-]+\.vercel\.app$/.test(origin)) {
     return true;
@@ -1011,6 +1016,44 @@ app.post('/api/:moduleName', authenticateToken, requireRole(['ADMIN', 'PARTNER']
   } catch (err) {
     console.error('Module POST error:', err.message);
     res.status(500).json({ error: 'Failed to save record to PostgreSQL.' });
+  }
+});
+
+// 10b. Update Purchase Order delivery status & dispatch notes via PostgreSQL
+app.post('/api/purchaseOrders/:id', authenticateToken, async (req, res) => {
+  const ip = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+  try {
+    const { id } = req.params;
+    const { deliveryStatus, dispatchNotes } = req.body;
+    const po = await prisma.purchaseOrder.findFirst({
+      where: { OR: [{ id }, { poNumber: id }] }
+    });
+    if (!po) {
+      return res.status(404).json({ error: 'Purchase Order not found.' });
+    }
+    const updateData = {};
+    if (deliveryStatus) updateData.deliveryStatus = deliveryStatus;
+    if (dispatchNotes) updateData.dispatchNotes = dispatchNotes;
+
+    const updated = await prisma.purchaseOrder.update({
+      where: { id: po.id },
+      data: updateData
+    });
+
+    logAudit({
+      userId: req.user.userId,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'PO_DELIVERY_UPDATE',
+      module: 'PURCHASE_ORDERS',
+      details: `Updated PO ${po.poNumber} delivery status to ${deliveryStatus || po.deliveryStatus}`,
+      ipAddress: ip
+    });
+
+    res.json({ success: true, item: updated });
+  } catch (err) {
+    console.error('PO delivery status update error:', err.message);
+    res.status(500).json({ error: 'Failed to update delivery status in PostgreSQL.' });
   }
 });
 

@@ -75,37 +75,55 @@ export default function App() {
     showToast('Logged out of session.');
   };
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+  const showToast = (msg, isError = false) => {
+    setToastMessage({ text: msg, isError });
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
   const handleRefreshData = async () => {
-    const dbData = await api.getData();
-    if (dbData) {
-      setData(dbData);
-      showToast('Live database metrics refreshed.');
+    try {
+      const dbData = await api.getData();
+      if (dbData) {
+        setData(dbData);
+        showToast('Live database metrics refreshed.');
+      }
+    } catch (e) {
+      showToast(`Failed to refresh data: ${e.message}`, true);
     }
   };
 
   const handleUpdateStatus = async (poId, status, notes) => {
-    const updatedData = await api.updateDeliveryStatus(poId, status, notes);
-    setData(updatedData);
-    showToast(`Material status updated to '${status}'!`);
+    try {
+      const updatedData = await api.updateDeliveryStatus(poId, status, notes);
+      setData(updatedData);
+      showToast(`Material status updated to '${status}'!`);
+    } catch (e) {
+      showToast(`Status update failed: ${e.message}`, true);
+    }
   };
 
   const handleSaveItem = async (moduleName, item) => {
-    const updatedData = await api.updateItem(moduleName, item);
-    setData(updatedData);
-    showToast(`Record ${activeEditItem ? 'updated in' : 'saved to'} ${moduleName}!`);
-    setActiveEditItem(null);
-    setActiveModal(null);
+    try {
+      const updatedData = await api.updateItem(moduleName, item);
+      setData(updatedData);
+      showToast(`Record ${activeEditItem ? 'updated in' : 'saved to'} ${moduleName}!`);
+      setActiveEditItem(null);
+      setActiveModal(null);
+    } catch (err) {
+      console.error('Failed to save record:', err);
+      showToast(`Failed to save: ${err.message}`, true);
+    }
   };
 
   const handleDeleteItem = async (moduleName, itemId) => {
-    const updatedData = await api.deleteItem(moduleName, itemId);
-    setData(updatedData);
-    showToast(`Record deleted from ${moduleName}!`);
+    try {
+      const updatedData = await api.deleteItem(moduleName, itemId);
+      setData(updatedData);
+      showToast(`Record deleted from ${moduleName}!`);
+    } catch (err) {
+      console.error('Failed to delete record:', err);
+      showToast(`Failed to delete: ${err.message}`, true);
+    }
   };
 
   const handleAddNewItem = (moduleName) => {
@@ -402,9 +420,15 @@ export default function App() {
       )}
 
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-white text-gray-900 font-semibold px-4 py-3 rounded-xl border border-gray-200 shadow-lg flex items-center space-x-2 text-xs">
-          <span className="text-emerald-600 font-bold">✓</span>
-          <span>{toastMessage}</span>
+        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl border shadow-lg flex items-center space-x-2 text-xs font-semibold ${
+          toastMessage.isError 
+            ? 'bg-rose-50 text-rose-800 border-rose-200' 
+            : 'bg-white text-gray-900 border-gray-200'
+        }`}>
+          <span className={toastMessage.isError ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}>
+            {toastMessage.isError ? '⚠️' : '✓'}
+          </span>
+          <span>{toastMessage.text || toastMessage}</span>
         </div>
       )}
     </div>
